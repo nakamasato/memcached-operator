@@ -22,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"reflect"
 
 	"context"
 
@@ -105,6 +106,31 @@ func (r *MemcachedReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{Requeue: true}, nil
 	}
 
+	// 4. Update the Memcached status with the pod names
+	// List the pods for this memcached's deployment
+	podList := &corev1.PodList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(memcached.Namespace),
+		client.MatchingLabels(labelsForMemcached(memcached.Name)),
+	}
+	if err = r.List(ctx, podList, listOpts...); err != nil {
+		log.Error(err, "4. Update the Memcached status with the pod names. Failed to list pods", "Memcached.Namespace", memcached.Namespace, "Memcached.Name", memcached.Name)
+		return ctrl.Result{}, err
+	}
+	podNames := getPodNames(podList.Items)
+	log.Info("4. Update the Memcached status with the pod names. Pod list", "podNames", podNames)
+
+	// Update status.Nodes if needed
+	if !reflect.DeepEqual(podNames, memcached.Status.Nodes) {
+		memcached.Status.Nodes = podNames
+		err := r.Status().Update(ctx, memcached)
+		if err != nil {
+			log.Error(err, "4. Update the Memcached status with the pod names. Failed to update Memcached status")
+			return ctrl.Result{}, err
+		}
+	}
+	log.Info("4. Update the Memcached status with the pod names. Update memcached.Status", "memcached.Status.Nodes", memcached.Status.Nodes)
+
 	return ctrl.Result{}, nil
 }
 
@@ -150,6 +176,15 @@ func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached)
 // belonging to the given memcached CR name.
 func labelsForMemcached(name string) map[string]string {
 	return map[string]string{"app": "memcached", "memcached_cr": name}
+}
+
+// getPodNames returns the pod names of the array of pods passed in
+func getPodNames(pods []corev1.Pod) []string {
+	var podNames []string
+	for _, pod := range pods {
+		podNames = append(podNames, pod.Name)
+	}
+	return podNames
 }
 
 // SetupWithManager sets up the controller with the Manager.

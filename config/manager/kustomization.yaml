@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: nakamasato/memcached-operator
-  newTag: v0.0.1-controller-sync-deployment-size
+  newTag: v0.0.1-controller-update-memcached-status
