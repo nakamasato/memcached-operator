@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: nakamasato/memcached-operator
-  newTag: v0.0.1-controller-fetch-memcached-instance
+  newTag: v0.0.1-controller-create-memcached-deployment
