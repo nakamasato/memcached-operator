@@ -70,7 +70,7 @@ var _ = Describe("Memcached controller", func() {
 			Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
 			Expect(k8sClient.Delete(ctx, memcached)).Should(Succeed())
 		})
-		It("Should create Deployment with the specified size", func() {
+		It("Should create Deployment with the specified size and memcached image", func() {
 			By("By creating a new Memcached")
 			memcached := newMemcached()
 			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
@@ -80,6 +80,7 @@ var _ = Describe("Memcached controller", func() {
 				return err == nil
 			}, timeout, interval).Should(BeTrue())
 			Expect(*deployment.Spec.Replicas).Should(Equal(memcachedSize))
+			Expect(deployment.Spec.Template.Spec.Containers[0].Image).Should(Equal("memcached:1.4.36-alpine"))
 		})
 		It("Should have pods name in Memcached Node", func() {
 			By("By creating a new Memcached")
