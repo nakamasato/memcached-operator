@@ -16,6 +16,7 @@ import (
 
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -25,14 +26,11 @@ const (
 	memcachedNamespace  = "default"
 	memcachedStartSize  = int32(3)
 	memcachedUpdateSize = int32(10)
+	timeout             = time.Second * 10
+	interval            = time.Millisecond * 250
 )
 
 var _ = Describe("Memcached controller", func() {
-
-	const (
-		timeout  = time.Second * 10
-		interval = time.Millisecond * 250
-	)
 
 	ctx := context.Background()
 	lookUpKey := types.NamespacedName{Name: memcachedName, Namespace: memcachedNamespace}
@@ -111,28 +109,42 @@ var _ = Describe("Memcached controller", func() {
 
 	Context("When updating Memcached", func() {
 		var memcached *cachev1alpha1.Memcached
+		var deployment *appsv1.Deployment
 		AfterEach(func() {
+			// delete Memcached
 			memcached = &cachev1alpha1.Memcached{}
 			Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
 			Expect(k8sClient.Delete(ctx, memcached)).Should(Succeed())
+
+			// delete Deployment
+			deployment = &appsv1.Deployment{}
+			Expect(k8sClient.Get(ctx, lookUpKey, deployment)).Should(Succeed())
+			Expect(k8sClient.Delete(ctx, deployment)).Should(Succeed())
+
+			// delete all Pods
+			err := k8sClient.DeleteAllOf(ctx, &v1.Pod{}, client.InNamespace(memcachedNamespace))
+			Expect(err).NotTo(HaveOccurred())
 		})
 		BeforeEach(func() {
+			// create Memcached
 			memcached = newMemcached()
+			memcached.Spec.Size = memcachedStartSize
 			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
-		})
-		It("Should update Deployment replicas", func() {
+			// Deployment is ready
 			deployment := &appsv1.Deployment{}
 			Eventually(func() bool {
 				err := k8sClient.Get(ctx, lookUpKey, deployment)
 				return err == nil
 			}, timeout, interval).Should(BeTrue())
 			Expect(*deployment.Spec.Replicas).Should(Equal(memcachedStartSize))
-
+		})
+		It("Should update Deployment replicas", func() {
 			By("Changing Memcached size")
 			memcached.Spec.Size = memcachedUpdateSize
 			Expect(k8sClient.Update(ctx, memcached)).Should(Succeed())
 
 			Eventually(func() (int32, error) {
+				deployment := &appsv1.Deployment{}
 				err := k8sClient.Get(ctx, lookUpKey, deployment)
 				if err != nil {
 					return int32(0), err
@@ -140,28 +152,16 @@ var _ = Describe("Memcached controller", func() {
 				return *deployment.Spec.Replicas, nil
 			}, timeout, interval).Should(Equal(memcachedUpdateSize))
 		})
-		// It("Should update Memcached.Status.Node", func() {
-		// 	deployment := &appsv1.Deployment{}
-		// 	Eventually(func() bool {
-		// 		err := k8sClient.Get(ctx, lookUpKey, deployment)
-		// 		return err == nil
-		// 	}, timeout, interval).Should(BeTrue())
-		// 	Expect(*deployment.Spec.Replicas).Should(Equal(memcachedStartSize))
+		It("Should update Memcached.Status.Node", func() {
+			By("Changing Memcached size")
+			Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
+			memcached.Spec.Size = memcachedUpdateSize
+			Expect(k8sClient.Update(ctx, memcached)).Should(Succeed())
 
-		// 	By("Changing Memcached size")
-		// 	memcached.Spec.Size = memcachedUpdateSize
-		// 	Expect(k8sClient.Update(ctx, memcached)).Should(Succeed())
+			podNames := createPods(ctx, int(memcachedUpdateSize))
 
-		// 	podNames := createPods(ctx, int(memcachedUpdateSize))
-
-		// 	Eventually(func() (int32, error) {
-		// 		err := k8sClient.Get(ctx, lookUpKey, memcached)
-		// 		if err != nil {
-		// 			return int32(0), err
-		// 		}
-		// 		return *deployment.Spec.Replicas, nil
-		// 	}, timeout, interval).Should(Equal(memcachedUpdateSize))
-		// })
+			checkMemcachedStatusNodes(ctx, lookUpKey, podNames)
+		})
 	})
 })
 
@@ -204,7 +204,7 @@ func checkMemcachedStatusNodes(ctx context.Context, lookUpKey types.NamespacedNa
 			return nil, err
 		}
 		return memcached.Status.Nodes, nil
-	}).Should(ConsistOf(podNames))
+	}, timeout, interval).Should(ConsistOf(podNames))
 }
 
 func createPods(ctx context.Context, num int) []string {
