@@ -165,37 +165,6 @@ var _ = Describe("Memcached controller", func() {
 	})
 })
 
-// func newReplicaSet() *appsv1.ReplicaSet {
-// 	return &appsv1.ReplicaSet{
-// 		TypeMeta: metav1.TypeMeta{
-// 			Kind:       "ReplicaSet",
-// 			APIVersion: "apps/v1",
-// 		},
-// 		ObjectMeta: metav1.ObjectMeta{
-// 			Name:            memcachedName,
-// 			GenerateName:    "",
-// 			Namespace:       memcachedNamespace,
-// 			SelfLink:        "",
-// 			UID:             "",
-// 			ResourceVersion: "",
-// 			Generation:      0,
-// 			CreationTimestamp: metav1.Time{
-// 				Time: time.Time{},
-// 			},
-// 			DeletionTimestamp:          &metav1.Time{},
-// 			DeletionGracePeriodSeconds: new(int64),
-// 			Labels:                     map[string]string{},
-// 			Annotations:                map[string]string{},
-// 			OwnerReferences:            []metav1.OwnerReference{},
-// 			Finalizers:                 []string{},
-// 			ClusterName:                "",
-// 			ManagedFields:              []metav1.ManagedFieldsEntry{},
-// 		},
-// 		Spec:   appsv1.ReplicaSetSpec{},
-// 		Status: appsv1.ReplicaSetStatus{},
-// 	}
-// }
-
 func checkMemcachedStatusNodes(ctx context.Context, lookUpKey types.NamespacedName, podNames []string) {
 	memcached := &cachev1alpha1.Memcached{}
 	Eventually(func() ([]string, error) {
