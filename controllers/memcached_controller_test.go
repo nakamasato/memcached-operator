@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	cachev1alpha1 "github.com/example/memcached-operator/api/v1alpha1"
@@ -22,8 +23,8 @@ const (
 	memcachedKind       = "Memcached"
 	memcachedName       = "sample"
 	memcachedNamespace  = "default"
-	memcachedSize       = int32(3)
-	podName             = "sample-pod"
+	memcachedStartSize  = int32(3)
+	memcachedUpdateSize = int32(10)
 )
 
 var _ = Describe("Memcached controller", func() {
@@ -79,7 +80,7 @@ var _ = Describe("Memcached controller", func() {
 				err := k8sClient.Get(ctx, lookUpKey, deployment)
 				return err == nil
 			}, timeout, interval).Should(BeTrue())
-			Expect(*deployment.Spec.Replicas).Should(Equal(memcachedSize))
+			Expect(*deployment.Spec.Replicas).Should(Equal(memcachedStartSize))
 			Expect(deployment.Spec.Template.Spec.Containers[0].Image).Should(Equal("memcached:1.4.36-alpine"))
 		})
 		It("Should have pods name in Memcached Node", func() {
@@ -96,8 +97,7 @@ var _ = Describe("Memcached controller", func() {
 			// as envtest (kube-apiserver & etcd) doesn't create replicaset nor pods,
 			// manually create pods with labels
 			By("By creating Pods with labels")
-			pod := newPod(podName)
-			Expect(k8sClient.Create(ctx, pod)).Should(Succeed())
+			podNames := createPods(ctx, 3)
 
 			// By("By triggering reconciliation logic") I thought I need to trigger reconciliation loop but not necessary why?
 			// deployment.SetAnnotations(map[string]string{
@@ -105,45 +105,64 @@ var _ = Describe("Memcached controller", func() {
 			// })
 			// Expect(k8sClient.Update(ctx, deployment)).Should(Succeed())
 
-			Eventually(func() ([]string, error) {
-				err := k8sClient.Get(ctx, lookUpKey, memcached)
-				if err != nil {
-					return nil, err
-				}
-				return memcached.Status.Nodes, nil
-			}).Should(ConsistOf(podName))
+			checkMemcachedStatusNodes(ctx, lookUpKey, podNames)
 		})
 	})
 
-	// Context("When updating Memcached", func() {
-	// 	AfterEach(func() {
-	// 		memcached := &cachev1alpha1.Memcached{}
-	// 		Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
-	// 		Expect(k8sClient.Delete(ctx, memcached)).Should(Succeed())
-	// 	})
-	// 	BeforeEach(func() {
-	// 		memcached := newMemcached()
-	// 		Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
-	// 	})
-	// 	It("Should update Deployment replicas", func() {
-	// 		deployment := &appsv1.Deployment{}
-	// 		Eventually(func() bool {
-	// 			err := k8sClient.Get(ctx, lookUpKey, deployment)
-	// 			return err == nil
-	// 		}, timeout, interval).Should(BeTrue())
-	// 		Expect(*deployment.Spec.Replicas).Should(Equal(memcachedSize))
+	Context("When updating Memcached", func() {
+		var memcached *cachev1alpha1.Memcached
+		AfterEach(func() {
+			memcached = &cachev1alpha1.Memcached{}
+			Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
+			Expect(k8sClient.Delete(ctx, memcached)).Should(Succeed())
+		})
+		BeforeEach(func() {
+			memcached = newMemcached()
+			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
+		})
+		It("Should update Deployment replicas", func() {
+			deployment := &appsv1.Deployment{}
+			Eventually(func() bool {
+				err := k8sClient.Get(ctx, lookUpKey, deployment)
+				return err == nil
+			}, timeout, interval).Should(BeTrue())
+			Expect(*deployment.Spec.Replicas).Should(Equal(memcachedStartSize))
 
-	// 		By("Changing Deployment replicas manually")
-	// 		*deployment.Spec.Replicas = int32(10)
-	// 		Expect(k8sClient.Update(ctx, deployment)).Should(Succeed())
+			By("Changing Memcached size")
+			memcached.Spec.Size = memcachedUpdateSize
+			Expect(k8sClient.Update(ctx, memcached)).Should(Succeed())
 
-	// 		Eventually(func() bool {
-	// 			err := k8sClient.Get(ctx, lookUpKey, deployment)
-	// 			return err == nil
-	// 		}, timeout, interval).Should(BeTrue())
-	// 		Expect(*deployment.Spec.Replicas).Should(Equal(memcachedSize))
-	// 	})
-	// })
+			Eventually(func() (int32, error) {
+				err := k8sClient.Get(ctx, lookUpKey, deployment)
+				if err != nil {
+					return int32(0), err
+				}
+				return *deployment.Spec.Replicas, nil
+			}, timeout, interval).Should(Equal(memcachedUpdateSize))
+		})
+		// It("Should update Memcached.Status.Node", func() {
+		// 	deployment := &appsv1.Deployment{}
+		// 	Eventually(func() bool {
+		// 		err := k8sClient.Get(ctx, lookUpKey, deployment)
+		// 		return err == nil
+		// 	}, timeout, interval).Should(BeTrue())
+		// 	Expect(*deployment.Spec.Replicas).Should(Equal(memcachedStartSize))
+
+		// 	By("Changing Memcached size")
+		// 	memcached.Spec.Size = memcachedUpdateSize
+		// 	Expect(k8sClient.Update(ctx, memcached)).Should(Succeed())
+
+		// 	podNames := createPods(ctx, int(memcachedUpdateSize))
+
+		// 	Eventually(func() (int32, error) {
+		// 		err := k8sClient.Get(ctx, lookUpKey, memcached)
+		// 		if err != nil {
+		// 			return int32(0), err
+		// 		}
+		// 		return *deployment.Spec.Replicas, nil
+		// 	}, timeout, interval).Should(Equal(memcachedUpdateSize))
+		// })
+	})
 })
 
 // func newReplicaSet() *appsv1.ReplicaSet {
@@ -177,6 +196,28 @@ var _ = Describe("Memcached controller", func() {
 // 	}
 // }
 
+func checkMemcachedStatusNodes(ctx context.Context, lookUpKey types.NamespacedName, podNames []string) {
+	memcached := &cachev1alpha1.Memcached{}
+	Eventually(func() ([]string, error) {
+		err := k8sClient.Get(ctx, lookUpKey, memcached)
+		if err != nil {
+			return nil, err
+		}
+		return memcached.Status.Nodes, nil
+	}).Should(ConsistOf(podNames))
+}
+
+func createPods(ctx context.Context, num int) []string {
+	podNames := []string{}
+	for i := 0; i < num; i++ {
+		podName := fmt.Sprintf("pod-%d", i)
+		podNames = append(podNames, podName)
+		pod := newPod(podName)
+		Expect(k8sClient.Create(ctx, pod)).Should(Succeed())
+	}
+	return podNames
+}
+
 func newPod(name string) *v1.Pod {
 	return &v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -207,6 +248,6 @@ func newMemcached() *cachev1alpha1.Memcached {
 	return &cachev1alpha1.Memcached{
 		TypeMeta:   metav1.TypeMeta{APIVersion: memcachedApiVersion, Kind: memcachedKind},
 		ObjectMeta: metav1.ObjectMeta{Name: memcachedName, Namespace: memcachedNamespace},
-		Spec:       cachev1alpha1.MemcachedSpec{Size: memcachedSize},
+		Spec:       cachev1alpha1.MemcachedSpec{Size: memcachedStartSize},
 	}
 }
