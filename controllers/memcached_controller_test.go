@@ -69,8 +69,7 @@ var _ = Describe("Memcached controller", func() {
 		})
 		It("Should create Deployment with the specified size and memcached image", func() {
 			By("By creating a new Memcached")
-			memcached := newMemcached()
-			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
+			createMemcached(ctx)
 
 			// Deployment is created
 			deployment := &appsv1.Deployment{}
@@ -88,18 +87,15 @@ var _ = Describe("Memcached controller", func() {
 			memcached := newMemcached()
 			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
 
-			deployment := &appsv1.Deployment{}
-			Eventually(func() bool {
-				err := k8sClient.Get(ctx, lookUpKey, deployment)
-				return err == nil
-			}, timeout, interval).Should(BeTrue())
+			checkIfDeploymentExists(ctx, lookUpKey)
 
+			// time.Sleep(10 * time.Second) // <- if we add sleep, test will fail because reconcile is not called after pods are created.
 			// as envtest (kube-apiserver & etcd) doesn't create replicaset nor pods,
 			// manually create pods with labels
 			By("By creating Pods with labels")
 			podNames := createPods(ctx, 3)
 
-			// By("By triggering reconciliation logic") I thought I need to trigger reconciliation loop but not necessary why?
+			// By("By triggering reconciliation logic") // strictly speaking we need this
 			// deployment.SetAnnotations(map[string]string{
 			// 	"test": "test",
 			// })
@@ -110,7 +106,6 @@ var _ = Describe("Memcached controller", func() {
 	})
 
 	Context("When updating Memcached", func() {
-		var memcached *cachev1alpha1.Memcached
 		AfterEach(func() {
 			// Delete Memcached
 			deleteMemcached(ctx, lookUpKey)
@@ -120,9 +115,7 @@ var _ = Describe("Memcached controller", func() {
 		})
 		BeforeEach(func() {
 			// Create Memcached
-			memcached = newMemcached()
-			memcached.Spec.Size = memcachedStartSize
-			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
+			createMemcached(ctx)
 			// Deployment is ready
 			checkDeploymentReplicas(ctx, lookUpKey, memcachedStartSize)
 		})
@@ -141,12 +134,9 @@ var _ = Describe("Memcached controller", func() {
 		})
 	})
 	Context("When changing Deployment", func() {
-		var memcached *cachev1alpha1.Memcached
 		BeforeEach(func() {
 			// Create Memcached
-			memcached = newMemcached()
-			memcached.Spec.Size = memcachedStartSize
-			Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
+			createMemcached(ctx)
 			// Deployment is ready
 			checkDeploymentReplicas(ctx, lookUpKey, memcachedStartSize)
 		})
@@ -164,10 +154,7 @@ var _ = Describe("Memcached controller", func() {
 			Expect(k8sClient.Delete(ctx, deployment)).Should(Succeed())
 
 			// Deployment will be recreated by controller
-			Eventually(func() bool {
-				err := k8sClient.Get(ctx, lookUpKey, deployment)
-				return err == nil
-			}, timeout, interval).Should(BeTrue())
+			checkIfDeploymentExists(ctx, lookUpKey)
 		})
 
 		It("Should ensure the deployment size is the same as the spec", func() {
@@ -207,15 +194,12 @@ var _ = Describe("Memcached controller", func() {
 	// })
 })
 
-func deleteAllPods(ctx context.Context) {
-	err := k8sClient.DeleteAllOf(ctx, &v1.Pod{}, client.InNamespace(memcachedNamespace))
-	Expect(err).NotTo(HaveOccurred())
-}
-
-func deleteMemcached(ctx context.Context, lookUpKey types.NamespacedName) {
-	memcached := &cachev1alpha1.Memcached{}
-	Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
-	Expect(k8sClient.Delete(ctx, memcached)).Should(Succeed())
+func checkIfDeploymentExists(ctx context.Context, lookUpKey types.NamespacedName) {
+	deployment := &appsv1.Deployment{}
+	Eventually(func() bool {
+		err := k8sClient.Get(ctx, lookUpKey, deployment)
+		return err == nil
+	}, timeout, interval).Should(BeTrue())
 }
 
 func checkDeploymentReplicas(ctx context.Context, lookUpKey types.NamespacedName, expectedSize int32) {
@@ -229,11 +213,39 @@ func checkDeploymentReplicas(ctx context.Context, lookUpKey types.NamespacedName
 	}, timeout, interval).Should(Equal(expectedSize))
 }
 
+func newMemcached() *cachev1alpha1.Memcached {
+	return &cachev1alpha1.Memcached{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: memcachedApiVersion,
+			Kind:       memcachedKind,
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      memcachedName,
+			Namespace: memcachedNamespace,
+		},
+		Spec: cachev1alpha1.MemcachedSpec{
+			Size: memcachedStartSize,
+		},
+	}
+}
+
+func createMemcached(ctx context.Context) {
+	memcached := newMemcached()
+	memcached.Spec.Size = memcachedStartSize
+	Expect(k8sClient.Create(ctx, memcached)).Should(Succeed())
+}
+
 func updateMemcacheSize(ctx context.Context, lookUpKey types.NamespacedName) {
 	memcached := &cachev1alpha1.Memcached{}
 	Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
 	memcached.Spec.Size = memcachedUpdateSize
 	Expect(k8sClient.Update(ctx, memcached)).Should(Succeed())
+}
+
+func deleteMemcached(ctx context.Context, lookUpKey types.NamespacedName) {
+	memcached := &cachev1alpha1.Memcached{}
+	Expect(k8sClient.Get(ctx, lookUpKey, memcached)).Should(Succeed())
+	Expect(k8sClient.Delete(ctx, memcached)).Should(Succeed())
 }
 
 func checkMemcachedStatusNodes(ctx context.Context, lookUpKey types.NamespacedName, podNames []string) {
@@ -256,6 +268,11 @@ func createPods(ctx context.Context, num int) []string {
 		Expect(k8sClient.Create(ctx, pod)).Should(Succeed())
 	}
 	return podNames
+}
+
+func deleteAllPods(ctx context.Context) {
+	err := k8sClient.DeleteAllOf(ctx, &v1.Pod{}, client.InNamespace(memcachedNamespace))
+	Expect(err).NotTo(HaveOccurred())
 }
 
 func newPod(name string) *v1.Pod {
@@ -281,21 +298,5 @@ func newPod(name string) *v1.Pod {
 			},
 		},
 		Status: v1.PodStatus{},
-	}
-}
-
-func newMemcached() *cachev1alpha1.Memcached {
-	return &cachev1alpha1.Memcached{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: memcachedApiVersion,
-			Kind:       memcachedKind,
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      memcachedName,
-			Namespace: memcachedNamespace,
-		},
-		Spec: cachev1alpha1.MemcachedSpec{
-			Size: memcachedStartSize,
-		},
 	}
 }
