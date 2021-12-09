@@ -18,32 +18,33 @@ https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
     go version go1.17.3 darwin/amd64
     ```
 
-## Create Operator & deploy
+## Steps
+### 1. Initialize an operator.
 
-1. Initialize an operator
+```
+operator-sdk init --domain example.com --repo github.com/example/memcached-operator
+```
 
-    ```
-    operator-sdk init --domain example.com --repo github.com/example/memcached-operator
-    ```
+<details><summary>result</summary>
 
-    <details><summary>result</summary>
+```
+Writing kustomize manifests for you to edit...
+Writing scaffold for you to edit...
+Get controller runtime:
+$ go get sigs.k8s.io/controller-runtime@v0.10.0
+go: downloading sigs.k8s.io/controller-runtime v0.10.0
+go: downloading k8s.io/utils v0.0.0-20210802155522-efc7438f0176
+go: downloading k8s.io/component-base v0.22.1
+go: downloading k8s.io/apiextensions-apiserver v0.22.1
+Update dependencies:
+$ go mod tidy
+Next: define a resource with:
+$ operator-sdk create api
+```
 
-    ```
-    Writing kustomize manifests for you to edit...
-    Writing scaffold for you to edit...
-    Get controller runtime:
-    $ go get sigs.k8s.io/controller-runtime@v0.10.0
-    go: downloading sigs.k8s.io/controller-runtime v0.10.0
-    go: downloading k8s.io/utils v0.0.0-20210802155522-efc7438f0176
-    go: downloading k8s.io/component-base v0.22.1
-    go: downloading k8s.io/apiextensions-apiserver v0.22.1
-    Update dependencies:
-    $ go mod tidy
-    Next: define a resource with:
-    $ operator-sdk create api
-    ```
+</details>
 
-    </details>
+## 2. Add API (resource and controller) for Memcached.
 
 1. Add controller
 
@@ -114,52 +115,42 @@ https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
 
     </details>
 
-1. Build
+1. Try running the empty operator
+    1. Install CRD.
+        ```
+        make install
+        ```
+    1. Run the controller.
+        ```
+        make run
+        ```
+    1. Create a new custom resource `Memcached`.
+        ```
+        kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
+    1. Check logs.
+        ```
+        kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
+        ```
+    1. Cleanup.
+        1. Delete CR.
+            ```
+            kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+            ```
+        1. Stop the controller by `ctrl-c`.
+        1. Uninstll the CRD.
+            ```
+            make uninstall
+            ```
 
-    ```
-    export OPERATOR_IMG="nakamasato/memcached-operator:v0.0.1"
-    make docker-build docker-push IMG=$OPERATOR_IMG
-    ```
+### 3. Define Memcached API (Custom Resource Definition).
 
-1. Deploy operator
+1. Update [api/v1alpha1/memcached_types.go]()
+1. `make generate` -> `controller-gen` to update [api/v1alpha1/zz_generated.deepcopy.go]()
+1. `make manifests` -> Make CRD manifests
+1. Update [config/samples/cache_v1alpha1_memcached.yaml]()
 
-    ```
-    make deploy IMG=$OPERATOR_IMG
-    ```
-
-1. Add CR
-
-    ```
-    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-    ```
-
-    ```
-    apiVersion: cache.example.com/v1alpha1
-    kind: Memcached
-    metadata:
-      name: memcached-sample
-    spec:
-      size: 3
-    ```
-
-1. Check controller's log
-
-    ```
-    kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
-    ```
-
-1. Uninstall operator
-
-    ```
-    make undeploy
-    ```
-
-## Implement CR and Controller
-
-1. Define the API
-    1. Update [api/v1alpha1/memcached_types.go]()
-    1. `make generate` -> `controller-gen` to update [api/v1alpha1/zz_generated.deepcopy.go]()
-    1. `make manifests` -> Make CRD manifests
+### 4. Implement the controller.
 1. Implement the Controller
     1. Add reconcile loop (you can build, deploy and check logs with the commands above)
         1. Fetch Memcached instance.
@@ -258,3 +249,45 @@ https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
             ```
             2021-04-11T03:06:40.253Z        INFO    controllers.Memcached   1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted       {"memcached": "default/memcached-sample"}
             ```
+
+## Deployment
+
+1. Build
+
+    ```
+    export OPERATOR_IMG="nakamasato/memcached-operator:v0.0.1"
+    make docker-build docker-push IMG=$OPERATOR_IMG
+    ```
+
+1. Deploy operator
+
+    ```
+    make deploy IMG=$OPERATOR_IMG
+    ```
+
+1. Add CR
+
+    ```
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```yaml
+    apiVersion: cache.example.com/v1alpha1
+    kind: Memcached
+    metadata:
+      name: memcached-sample
+    spec:
+      size: 3
+    ```
+
+1. Check controller's log
+
+    ```
+    kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
+    ```
+
+1. Uninstall operator
+
+    ```
+    make undeploy
+    ```
