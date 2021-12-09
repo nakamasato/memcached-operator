@@ -8,23 +8,42 @@ https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
 
     ```
     operator-sdk version
-    operator-sdk version: "v1.5.0", commit: "98f30d59ade2d911a7a8c76f0169a7de0dec37a0", kubernetes version: "v1.19.4", go version: "go1.16.1", GOOS: "darwin", GOARCH: "amd64"
+    operator-sdk version: "v1.15.0", commit: "f6326e832a8a5e5453d0ad25e86714a0de2c0fc8", kubernetes version: "v1.21", go version: "go1.17.2", GOOS: "darwin", GOARCH: "amd64"
     ```
 
 1. `go`
 
     ```
     go version
-    go version go1.16.3 darwin/amd64
+    go version go1.17.3 darwin/amd64
     ```
 
 ## Create Operator & deploy
 
-1. Create operator
+1. Initialize an operator
 
     ```
     operator-sdk init --domain example.com --repo github.com/example/memcached-operator
     ```
+
+    <details><summary>result</summary>
+
+    ```
+    Writing kustomize manifests for you to edit...
+    Writing scaffold for you to edit...
+    Get controller runtime:
+    $ go get sigs.k8s.io/controller-runtime@v0.10.0
+    go: downloading sigs.k8s.io/controller-runtime v0.10.0
+    go: downloading k8s.io/utils v0.0.0-20210802155522-efc7438f0176
+    go: downloading k8s.io/component-base v0.22.1
+    go: downloading k8s.io/apiextensions-apiserver v0.22.1
+    Update dependencies:
+    $ go mod tidy
+    Next: define a resource with:
+    $ operator-sdk create api
+    ```
+
+    </details>
 
 1. Add controller
 
