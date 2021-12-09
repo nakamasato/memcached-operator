@@ -1,0 +1,17 @@
+apiVersion: skaffold/v2beta25
+kind: Config
+metadata:
+  name: memcached-operator
+build:
+  artifacts:
+    - image: memcached-operator
+      context: .
+      docker:
+        dockerfile: Dockerfile
+  local:
+    push: false
+deploy:
+  kustomize:
+    paths:
+      - config/crd
+      - config/default
