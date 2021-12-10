@@ -451,30 +451,113 @@ $ operator-sdk create api
     1. Stop the controller.
 
 
-1. Update the Memcached status with the pod names
+#### 4.2 Update the Memcached status with the pod names.
 
-    ```
-    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-    ```
+1. Add `"reflect"` to `import`.
+1. Add the following logic to `Reconcile` functioin.
 
+    ```go
+    // 4. Update the Memcached status with the pod names
+    // List the pods for this memcached's deployment
+    podList := &corev1.PodList{}
+    listOpts := []client.ListOption{
+            client.InNamespace(memcached.Namespace),
+            client.MatchingLabels(labelsForMemcached(memcached.Name)),
+    }
+    if err = r.List(ctx, podList, listOpts...); err != nil {
+            log.Error(err, "4. Update the Memcached status with the pod names. Failed to list pods", "Memcached.Namespace", memcached.Namespace, "Memcached.Name", memcached.Name)
+            return ctrl.Result{}, err
+    }
+    podNames := getPodNames(podList.Items)
+    log.Info("4. Update the Memcached status with the pod names. Pod list", "podNames", podNames)
+    // Update status.Nodes if needed
+    if !reflect.DeepEqual(podNames, memcached.Status.Nodes) {
+            memcached.Status.Nodes = podNames
+            err := r.Status().Update(ctx, memcached)
+            if err != nil {
+                    log.Error(err, "4. Update the Memcached status with the pod names. Failed to update Memcached status")
+                    return ctrl.Result{}, err
+            }
+    }
+    log.Info("4. Update the Memcached status with the pod names. Update memcached.Status", "memcached.Status.Nodes", memcached.Status.Nodes)
     ```
-    kubectl get Memcached memcached-sample -o jsonpath='{.status}' | jq
-    {
-        "nodes": [
-        "memcached-sample-6c765df685-fpqcd",
-        "memcached-sample-6c765df685-n7xxh",
-        "memcached-sample-6c765df685-x772f"
-        ]
+1. Add `getPodNames` function.
+
+    ```go
+    // getPodNames returns the pod names of the array of pods passed in
+    func getPodNames(pods []corev1.Pod) []string {
+        var podNames []string
+        for _, pod := range pods {
+                podNames = append(podNames, pod.Name)
+        }
+        return podNames
     }
     ```
+1. Add necessary `RBAC`.
+    ```diff
+      //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds,verbs=get;list;watch;create;update;patch;delete
+      //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/status,verbs=get;update;patch
+      //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/finalizers,verbs=update
+      //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+    + //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;
+    ```
 
-    ```
-    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
-    ```
+1. Check
+    1. Run the controller.
+        ```bash
+        make run
+        ```
+    1. Apply a `Memcached` (CR).
+        ```bash
+        kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
 
-    ```
-    2021-04-11T03:06:40.253Z        INFO    controllers.Memcached   1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted       {"memcached": "default/memcached-sample"}
-    ```
+    1. Check logs.
+
+        ```bash
+        2021-12-10T13:09:03.716+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T13:09:03.716+0900    INFO    controller.memcached    2. Check if the deployment already exists, if not create a new one. Creating a new Deployment    {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "Deployment.Namespace": "default", "Deployment.Name": "memcached-sample"}
+        2021-12-10T13:09:03.727+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T13:09:03.829+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Pod list     {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "podNames": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:03.841+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Update memcached.Status       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Status.Nodes": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:03.841+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T13:09:03.841+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Pod list     {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "podNames": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:03.841+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Update memcached.Status       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Status.Nodes": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:05.565+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T13:09:05.565+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Pod list     {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "podNames": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:05.565+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Update memcached.Status       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Status.Nodes": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:05.587+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T13:09:05.587+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Pod list     {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "podNames": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        2021-12-10T13:09:05.588+0900    INFO    controller.memcached    4. Update the Memcached status with the pod names. Update memcached.Status       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Status.Nodes": ["memcached-sample-6c765df685-f9jpl", "memcached-sample-6c765df685-cf725"]}
+        ```
+
+    1. Check `Deployment`.
+
+        ```
+        kubectl get deploy
+        NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+        memcached-sample   2/2     2            2           115s
+        ```
+
+    1. Check `status` in `Memcached` object.
+
+        ```bash
+        kubectl get Memcached memcached-sample -o jsonpath='{.status}' | jq
+        {
+          "nodes": [
+            "memcached-sample-6c765df685-9drvp",
+            "memcached-sample-6c765df685-g7nl8"
+          ]
+        }
+        ```
+
+    1. Delete the CR.
+        ```bash
+        kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
+
+    1. Stop the controller.
+
 
 ## Deployment
 
