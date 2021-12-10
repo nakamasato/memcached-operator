@@ -44,7 +44,7 @@ $ operator-sdk create api
 
 </details>
 
-## 2. Add API (resource and controller) for Memcached.
+### 2. Add API (resource and controller) for Memcached.
 
 1. Add controller
 
@@ -559,22 +559,22 @@ $ operator-sdk create api
     1. Stop the controller.
 
 
-## Deployment
+### 5. Deploy with `Deployment`.
 
-1. Build
+1. Build docker image and push it to registry.
 
     ```
     export OPERATOR_IMG="nakamasato/memcached-operator:v0.0.1"
     make docker-build docker-push IMG=$OPERATOR_IMG
     ```
 
-1. Deploy operator
+1. Deploy operator.
 
     ```
     make deploy IMG=$OPERATOR_IMG
     ```
 
-1. Add CR
+1. Add CR.
 
     ```
     kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
@@ -589,13 +589,19 @@ $ operator-sdk create api
       size: 3
     ```
 
-1. Check controller's log
+1. Check controller's log.
 
     ```
     kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
     ```
 
-1. Uninstall operator
+1. Delete CR.
+
+    ```
+    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+1. Uninstall operator.
 
     ```
     make undeploy
