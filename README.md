@@ -128,10 +128,7 @@ $ operator-sdk create api
         ```
         kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
         ```
-    1. Check logs.
-        ```
-        kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
-        ```
+    1. Check logs. (Just confirm the controller starts up successfully.)
     1. Cleanup.
         1. Delete CR.
             ```
@@ -151,104 +148,142 @@ $ operator-sdk create api
 1. Update [config/samples/cache_v1alpha1_memcached.yaml]()
 
 ### 4. Implement the controller.
-1. Implement the Controller
-    1. Add reconcile loop (you can build, deploy and check logs with the commands above)
-        1. Fetch Memcached instance.
+#### 4.1. Fetch Memcached instance.
 
-            ```
-            kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
-            2021-04-11T02:16:43.642Z        INFO    controllers.Memcached   Memchached resource found       {"memcached": "default/memcached-sample", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
-            ```
+1. Write the following lines in `Reconcile` function in [controllers/memcached_controller.go]().
 
-        1. Check if the deployment already exists, if not create a new one.
+    ```go
+    func (r *MemcachedReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result,     error) {
+        log := log.FromContext(ctx)
 
-            ```
-            kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
-
-            ```
-            kubectl get deploy memcached-sample
-            NAME               READY   UP-TO-DATE   AVAILABLE   AGE
-            memcached-sample   3/3     3            3           19s
-            ```
-
-            ```
-            kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
-
-            ```
-            2021-04-11T02:18:14.270Z        ERROR   controller-runtime.manager.controller.memcached Reconciler error       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "error": "Memcached.cache.example.com \"memcached-sample\" not found"}
-            ```
-
-            ```
-            kubectl get deploy memcached-sample
-            Error from server (NotFound): deployments.apps "memcached-sample" not found
-            ```
-
-        1. Ensure the deployment size is the same as the spec
-
-            ```
-            kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
-
-            ```
-            kubectl get deploy memcached-sample
-            NAME               READY   UP-TO-DATE   AVAILABLE   AGE
-            memcached-sample   3/3     3            3           19s
-            ```
-
-            change the size to 2 in [config/samples/cache_v1alpha1_memcached.yaml]()
-
-            ```
-            kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
-
-            ```
-            2021-04-11T02:32:56.649Z        INFO    controllers.Memcached      Update deployment size  {"memcached": "default/memcached-sample", "Deployment.Spec.Replicas": 2}
-            ```
-
-            ```
-            kubectl get deploy memcached-sampleNAME               READY   UP-TO-DATE   AVAILABLE   AGE
-            memcached-sample   2/2     2            2           63s
-            ```
-
-            ```
-            kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
-
-            ```
-            kubectl get deploy memcached-sample
-            Error from server (NotFound): deployments.apps "memcached-sample" not found
-            ```
-
-            ```
-            2021-04-11T02:36:28.168Z        ERROR   controller-runtime.manager.controller.memcached    Reconciler error   {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "error": "Memcached.cache.example.com \"memcached-sample\" not found"}
-            ```
-
-        1. Update the Memcached status with the pod names
-
-            ```
-            kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
-
-            ```
-            kubectl get Memcached memcached-sample -o jsonpath='{.status}' | jq
-            {
-              "nodes": [
-                "memcached-sample-6c765df685-fpqcd",
-                "memcached-sample-6c765df685-n7xxh",
-                "memcached-sample-6c765df685-x772f"
-              ]
+        // 1. Fetch the Memcached instance
+        memcached := &cachev1alpha1.Memcached{}
+        err := r.Get(ctx, req.NamespacedName, memcached)
+        if err != nil {
+            if errors.IsNotFound(err) {
+                log.Info("1. Fetch the Memcached instance. Memcached resource not found.     Ignoring since object must be deleted")
+                return ctrl.Result{}, nil
             }
-            ```
+            // Error reading the object - requeue the request.
+            log.Error(err, "1. Fetch the Memcached instance. Failed to get Mmecached")
+            return ctrl.Result{}, err
+        }
+        log.Info("1. Fetch the Memcached instance. Memchached resource found", "memcached.Name",     memcached.Name, "memcached.Namespace", memcached.Namespace)
+        return ctrl.Result{}, nil
+    }
+    ```
 
-            ```
-            kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
-            ```
+1. Check
+    1. Apply a `Memcached` (CR).
+        ```bash
+        kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
+    1. Check logs.
 
-            ```
-            2021-04-11T03:06:40.253Z        INFO    controllers.Memcached   1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted       {"memcached": "default/memcached-sample"}
-            ```
+        ```bash
+        2021-12-10T12:14:10.123+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        ```
+
+    1. Delete the CR.
+        ```bash
+        kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
+
+    1. Check logs.
+        ```bash
+        2021-12-10T12:15:37.234+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default"}
+        ```
+    1. Stop the controller.
+
+1. Check if the deployment already exists, if not create a new one.
+
+    ```
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    kubectl get deploy memcached-sample
+    NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+    memcached-sample   3/3     3            3           19s
+    ```
+
+    ```
+    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    2021-04-11T02:18:14.270Z        ERROR   controller-runtime.manager.controller.memcached Reconciler error       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "error": "Memcached.cache.example.com \"memcached-sample\" not found"}
+    ```
+
+    ```
+    kubectl get deploy memcached-sample
+    Error from server (NotFound): deployments.apps "memcached-sample" not found
+    ```
+
+1. Ensure the deployment size is the same as the spec
+
+    ```
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    kubectl get deploy memcached-sample
+    NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+    memcached-sample   3/3     3            3           19s
+    ```
+
+    change the size to 2 in [config/samples/cache_v1alpha1_memcached.yaml]()
+
+    ```
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    2021-04-11T02:32:56.649Z        INFO    controllers.Memcached      Update deployment size  {"memcached": "default/memcached-sample", "Deployment.Spec.Replicas": 2}
+    ```
+
+    ```
+    kubectl get deploy memcached-sampleNAME               READY   UP-TO-DATE   AVAILABLE   AGE
+    memcached-sample   2/2     2            2           63s
+    ```
+
+    ```
+    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    kubectl get deploy memcached-sample
+    Error from server (NotFound): deployments.apps "memcached-sample" not found
+    ```
+
+    ```
+    2021-04-11T02:36:28.168Z        ERROR   controller-runtime.manager.controller.memcached    Reconciler error   {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "error": "Memcached.cache.example.com \"memcached-sample\" not found"}
+    ```
+
+1. Update the Memcached status with the pod names
+
+    ```
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    kubectl get Memcached memcached-sample -o jsonpath='{.status}' | jq
+    {
+        "nodes": [
+        "memcached-sample-6c765df685-fpqcd",
+        "memcached-sample-6c765df685-n7xxh",
+        "memcached-sample-6c765df685-x772f"
+        ]
+    }
+    ```
+
+    ```
+    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```
+    2021-04-11T03:06:40.253Z        INFO    controllers.Memcached   1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted       {"memcached": "default/memcached-sample"}
+    ```
 
 ## Deployment
 
