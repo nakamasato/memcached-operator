@@ -195,30 +195,176 @@ $ operator-sdk create api
         ```
     1. Stop the controller.
 
-1. Check if the deployment already exists, if not create a new one.
+#### 4.2 Check if the deployment already exists, and create one if not exists.
 
-    ```
-    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
-    ```
+1. Add necessary packages to `import`.
+    ```go
+    import (
+        ...
+        "k8s.io/apimachinery/pkg/types"
+        ...
 
-    ```
-    kubectl get deploy memcached-sample
-    NAME               READY   UP-TO-DATE   AVAILABLE   AGE
-    memcached-sample   3/3     3            3           19s
-    ```
+        appsv1 "k8s.io/api/apps/v1"
+        corev1 "k8s.io/api/core/v1"
+        metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-    ```
-    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
-    ```
-
-    ```
-    2021-04-11T02:18:14.270Z        ERROR   controller-runtime.manager.controller.memcached Reconciler error       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "error": "Memcached.cache.example.com \"memcached-sample\" not found"}
+        ...
+    )
     ```
 
+1. Add the following logics to `Reconcile` function.
+
+    ```go
+    // 2. Check if the deployment already exists, if not create a new one
+    found := &appsv1.Deployment{}
+    err = r.Get(ctx, types.NamespacedName{Name: memcached.Name, Namespace: memcached.Namespace}, found)
+    if err != nil && errors.IsNotFound(err) {
+            // Define a new deployment
+            dep := r.deploymentForMemcached(memcached)
+            log.Info("2. Check if the deployment already exists, if not create a new one. Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+            err = r.Create(ctx, dep)
+            if err != nil {
+                    log.Error(err, "2. Check if the deployment already exists, if not create a new one. Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+                    return ctrl.Result{}, err
+            }
+            // Deployment created successfully - return and requeue
+            return ctrl.Result{Requeue: true}, nil
+    } else if err != nil {
+            log.Error(err, "2. Check if the deployment already exists, if not create a new one. Failed to get Deployment")
+            return ctrl.Result{}, err
+    }
     ```
-    kubectl get deploy memcached-sample
-    Error from server (NotFound): deployments.apps "memcached-sample" not found
+1. Create `deploymentForMemcached` and `labelsForMemcached` functions.
+
+    <details><summary>deploymentForMemcached</summary>
+
+    ```go
+    // deploymentForMemcached returns a memcached Deployment object
+    func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached) *appsv1.Deployment {
+        ls := labelsForMemcached(m.Name)
+        replicas := m.Spec.Size
+
+        dep := &appsv1.Deployment{
+                ObjectMeta: metav1.ObjectMeta{
+                        Name:      m.Name,
+                        Namespace: m.Namespace,
+                },
+                Spec: appsv1.DeploymentSpec{
+                        Replicas: &replicas,
+                        Selector: &metav1.LabelSelector{
+                                MatchLabels: ls,
+                        },
+                        Template: corev1.PodTemplateSpec{
+                                ObjectMeta: metav1.ObjectMeta{
+                                        Labels: ls,
+                                },
+                                Spec: corev1.PodSpec{
+                                        Containers: []corev1.Container{{
+                                                Image:   "memcached:1.4.36-alpine",
+                                                Name:    "memcached",
+                                                Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+                                                Ports: []corev1.ContainerPort{{
+                                                        ContainerPort: 11211,
+                                                        Name:          "memcached",
+                                                }},
+                                        }},
+                                },
+                        },
+                },
+        }
+        // Set Memcached instance as the owner and controller
+        ctrl.SetControllerReference(m, dep, r.Scheme)
+        return dep
+    }
     ```
+
+    </details>
+
+    <details><summary>labelsForMemcached</summary>
+
+    ```go
+    // labelsForMemcached returns the labels for selecting the resources
+    // belonging to the given memcached CR name.
+    func labelsForMemcached(name string) map[string]string {
+        return map[string]string{"app": "memcached", "memcached_cr": name}
+    }
+    ```
+
+    </details>
+1. Add necessary `RBAC` to the reconciler.
+
+    ```diff
+    //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds,verbs=get;list;watch;create;update;patch;delete
+    //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/status,verbs=get;update;patch
+    //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/finalizers,verbs=update
+    + //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
+    ```
+
+1. Add `Owns(&appsv1.Deployment{})` to the controller manager.
+
+    ```go
+    // SetupWithManager sets up the controller with the Manager.
+    func (r *MemcachedReconciler) SetupWithManager(mgr ctrl.Manager) error {
+        return ctrl.NewControllerManagedBy(mgr).
+            For(&cachev1alpha1.Memcached{}).
+            Owns(&appsv1.Deployment{}).
+            Complete(r)
+    }
+    ```
+
+1. Check
+    1. Apply a `Memcached` (CR).
+        ```bash
+        kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
+    1. Check logs.
+
+        ```bash
+        2021-12-10T12:34:34.587+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:34.587+0900    INFO    controller.memcached    2. Check if the deployment already exists, if not create a new one. Creating a new Deployment       {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "Deployment.Namespace": "default", "Deployment.Name": "memcached-sample"}
+        2021-12-10T12:34:34.599+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:34.604+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:34.648+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:34.662+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:34.724+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:43.285+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:46.333+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        2021-12-10T12:34:48.363+0900    INFO    controller.memcached    1. Fetch the Memcached instance. Memchached resource found      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default", "memcached.Name": "memcached-sample", "memcached.Namespace": "default"}
+        ```
+
+        There are ten lines of logs:
+        1. When `Memcached` object is created.
+        1. Create `Deployment`.
+        1. When `Deployment` is created.
+        1. 8 more events are created accordingly.
+
+
+    1. Check `Deployment`.
+
+        ```
+        kubectl get deploy memcached-sample
+        NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+        memcached-sample   3/3     3            3           19s
+        ```
+
+    1. Delete the CR.
+        ```bash
+        kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+        ```
+
+    1. Check logs.
+        ```bash
+        2021-12-10T12:38:50.473+0900    INFO    controller.memcached 1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default"}
+        2021-12-10T12:38:50.512+0900    INFO    controller.memcached 1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted      {"reconciler group": "cache.example.com", "reconciler kind": "Memcached", "name": "memcached-sample", "namespace": "default"}
+        ```
+    1. Check `Deployment`.
+        ```
+        kubectl get deploy
+        No resources found in default namespace.
+        ```
+    1. Stop the controller.
+
+
 
 1. Ensure the deployment size is the same as the spec
 
