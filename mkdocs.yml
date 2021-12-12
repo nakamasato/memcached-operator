@@ -1,0 +1,11 @@
+site_name: Quickstart for Go-based Operators
+theme:
+  name: material
+  palette:
+    primary: cyan
+markdown_extensions:
+  - pymdownx.superfences
+extra:
+  analytics:
+    provider: google
+    property: G-9NTB93RVPJ
