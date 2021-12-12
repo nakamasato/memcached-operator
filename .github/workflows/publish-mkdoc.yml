@@ -2,9 +2,9 @@ name: publish-mkdoc
 
 on:
   push:
-    branches:
-      - main
-      - master
+    # branches:
+    #   - main
+    #   - master
 jobs:
   deploy:
     runs-on: ubuntu-latest
