@@ -693,3 +693,9 @@ Test cases:
 ```
 make test
 ```
+
+### 7. Add CI
+
+- `pre-commit`
+- `reviewdog`
+- `test`
