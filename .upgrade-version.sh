@@ -19,7 +19,8 @@ if [ -n "$(git status --porcelain)" ]; then
         echo "duplicated commit -> amend"
         git add . && git commit -a --amend --no-edit
     else
-        git add . && git commit -m $commit_message
+        echo "create a commit"
+        git add . && git commit -m "$commit_message"
     fi
 else
   echo "no changes";
@@ -29,4 +30,5 @@ fi
 # 1. Init a project
 rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
-git checkout docs mkdocs.yml
+git checkout .
+git add . & git commit -m "1. Create a project"
