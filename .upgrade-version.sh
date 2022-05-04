@@ -2,6 +2,9 @@
 
 set -eu
 
+
+echo "======== CLEAN UP ==========="
+
 rm -rf api config controllers hack bin 2> /dev/null
 for f in .dockerignore .gitignore *.go go.* Makefile PROJECT Dockerfile; do
     if [ -f "$f" ] ; then
@@ -24,11 +27,19 @@ if [ -n "$(git status --porcelain)" ]; then
     fi
 else
   echo "no changes";
+  echo "======== CLEAN UP COMPLETED ==========="
+  exit 0
 fi
 
+echo "======== CLEAN UP COMPLETED ==========="
+
+
+echo "======== INIT PROJECT ==========="
 
 # 1. Init a project
 rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
 git checkout .
 git add . & git commit -m "1. Create a project"
+
+echo "======== INIT PROJECT COMPLETED ==========="
