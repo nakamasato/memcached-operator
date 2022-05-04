@@ -39,7 +39,14 @@ echo "======== INIT PROJECT ==========="
 # 1. Init a project
 rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
-git checkout .
+echo "======== INIT PROJECT operator-sdk init completed =========="
+
+until [ ! -f .git/index.lock ]
+do
+    echo ".git/index.lock found"
+    sleep 5
+done
+git checkout docs mkdocs.yml
 git add . & git commit -m "1. Create a project"
 
 echo "======== INIT PROJECT COMPLETED ==========="
