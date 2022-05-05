@@ -2,7 +2,7 @@
 
 set -eu
 
-
+# 0. Clean up
 echo "======== CLEAN UP ==========="
 
 rm -rf api config controllers hack bin 2> /dev/null
@@ -34,18 +34,18 @@ fi
 echo "======== CLEAN UP COMPLETED ==========="
 
 
-echo "======== INIT PROJECT ==========="
-
 # 1. Init a project
+echo "======== INIT PROJECT ==========="
 rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
 echo "======== INIT PROJECT operator-sdk init completed =========="
-
 echo "git checkout docs mkdocs.yml"
 git checkout docs mkdocs.yml
-
 echo "git add & commit"
 pre-commit run -a
 git add . && git commit -m "1. Create a project"
-
 echo "======== INIT PROJECT COMPLETED ==========="
+
+# 2. Create API (resource and controller) for Memcached
+# Fix `Makefile` L150~177
+# operator-sdk create api --group cache --version v1alpha1 --kind Memcached --resource --controller

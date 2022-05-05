@@ -1,4 +1,4 @@
-# 2. Add API (resource and controller) for Memcached
+# 2. Create API (resource and controller) for Memcached
 
 1. Add controller
 
