@@ -43,10 +43,17 @@ echo "======== INIT PROJECT operator-sdk init completed =========="
 
 until [ ! -f .git/index.lock ]
 do
-    echo ".git/index.lock found"
+    echo ".git/index.lock found before checkout"
     sleep 5
 done
+echo "git checkout docs mkdocs.yml"
 git checkout docs mkdocs.yml
-git add . & git commit -m "1. Create a project"
+until [ ! -f .git/index.lock ]
+do
+    echo ".git/index.lock found after checkout"
+    sleep 5
+done
+echo "git add & commit"
+git add . && git commit -m "1. Create a project"
 
 echo "======== INIT PROJECT COMPLETED ==========="
