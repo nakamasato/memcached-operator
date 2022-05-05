@@ -45,6 +45,7 @@ echo "git checkout docs mkdocs.yml"
 git checkout docs mkdocs.yml
 
 echo "git add & commit"
+pre-commit run -a
 git add . && git commit -m "1. Create a project"
 
 echo "======== INIT PROJECT COMPLETED ==========="
