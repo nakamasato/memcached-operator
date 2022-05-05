@@ -44,6 +44,11 @@ git checkout docs mkdocs.yml
 echo "git add & commit"
 pre-commit run -a
 git add . && git commit -m "1. Create a project"
+echo "======== INIT PROJECT fix Makefile =========="
+
+sed -i '150,177d' Makefile
+sed -i '149r Makefile.patch' Makefile
+
 echo "======== INIT PROJECT COMPLETED ==========="
 
 # 2. Create API (resource and controller) for Memcached

@@ -3,14 +3,14 @@
 1. Update [api/v1alpha1/memcached_types.go]()
 
     ```go
-    // MemcachedSpec defines the desired state of     Memcached
+    // MemcachedSpec defines the desired state of Memcached
     type MemcachedSpec struct {
     	//+kubebuilder:validation:Minimum=0
     	// Size is the size of the memcached deployment
     	Size int32 `json:"size"`
     }
 
-    // MemcachedStatus defines the observed state of     Memcached
+    // MemcachedStatus defines the observed state of Memcached
     type MemcachedStatus struct {
     	// Nodes are the names of the memcached pods
     	Nodes []string `json:"nodes"`

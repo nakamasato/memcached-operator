@@ -1,4 +1,4 @@
-# 6. Write controller tests
+# 7. Write controller tests
 
 ## Tools
 
@@ -27,6 +27,7 @@
             "sigs.k8s.io/controller-runtime/pkg/log/zap"
     +       "sigs.k8s.io/controller-runtime/pkg/manager"
     ```
+
 1. Prepare global variables.
     ```diff
     -var cfg *rest.Config
@@ -40,17 +41,21 @@
     +       cancel     context.CancelFunc
     +)
     ```
+
 1. Update `BeforeSuite`.
+
     1. Create context with cancel.
         ```go
         ctx, cancel = context.WithCancel(context.TODO())
         ```
+
     1. Register the schema to manager.
         ```go
         k8sManager, err = ctrl.NewManager(cfg, ctrl.Options{
     		Scheme: scheme.Scheme,
     	})
         ```
+
     1. Initialize `MemcachedReconciler` with the manager client schema.
         ```go
         err = (&MemcachedReconciler{
@@ -58,6 +63,7 @@
             Scheme: k8sManager.GetScheme(),
         }).SetupWithManager(k8sManager)
         ```
+
     1. Start the with a goroutine.
         ```go
         go func() {
