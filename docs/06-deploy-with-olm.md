@@ -90,5 +90,76 @@
     In this example, I'm using my own docker hub registry: https://hub.docker.com/repository/docker/nakamasato/memcached-operator
 
     ```
-    make bundle bundle-build bundle-push BUNDLE_IMG=nakamasato/memcached-operator:v0.0.1
+    IMG=nakamasato/memcached-operator:v0.0.1
+    IMG=$IMG make bundle
+    ```
+
+    <details>
+
+    ```
+    /Users/nakamasato/repos/nakamasato/memcached-operator/bin/controller-gen rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+    operator-sdk generate kustomize manifests -q
+    cd config/manager && /Users/nakamasato/repos/nakamasato/memcached-operator/bin/kustomize edit set image controller=nakamasato/memcached-operator:v0.0.1
+    /Users/nakamasato/repos/nakamasato/memcached-operator/bin/kustomize build config/manifests | operator-sdk generate bundle -q --overwrite --version 0.0.1
+    INFO[0001] Creating bundle/metadata/annotations.yaml
+    INFO[0001] Creating bundle.Dockerfile
+    INFO[0001] Bundle metadata generated suceessfully
+    operator-sdk bundle validate ./bundle
+    INFO[0000] All validation tests have completed successfully
+    ```
+
+    </details>
+
+    ```
+    make bundle-build bundle-push BUNDLE_IMG=$IMG
+    ```
+
+    <details><summary>result</summary>
+
+    ```
+    docker build -f bundle.Dockerfile -t nakamasato/memcached-operator:v0.0.1 .
+    [+] Building 0.8s (7/7) FINISHED
+     => [internal] load build definition from bundle.Dockerfile                                                  0.1s
+     => => transferring dockerfile: 970B                                                                         0.0s
+     => [internal] load .dockerignore                                                                            0.0s
+     => => transferring context: 171B                                                                            0.0s
+     => [internal] load build context                                                                            0.1s
+     => => transferring context: 12.13kB                                                                         0.1s
+     => [1/3] COPY bundle/manifests /manifests/                                                                  0.0s
+     => [2/3] COPY bundle/metadata /metadata/                                                                    0.1s
+     => [3/3] COPY bundle/tests/scorecard /tests/scorecard/                                                      0.0s
+         => exporting to image                                                                                       0.1s
+         => => exporting layers                                                                                      0.1s
+     => => writing image sha256:dedce44bfa7f53e89a6d57daeec3d2f745607405b131f7b0fbca3bf80538a381                 0.0s
+     => => naming to docker.io/nakamasato/memcached-operator:v0.0.1                                              0.0s
+
+    Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
+    /Library/Developer/CommandLineTools/usr/bin/make docker-push IMG=nakamasato/memcached-operator:v0.0.1
+    docker push nakamasato/memcached-operator:v0.0.1
+    The push refers to repository [docker.io/nakamasato/memcached-operator]
+    4748905d6dc6: Pushed
+    8973f608ef2b: Pushed
+    dd7513d00c74: Pushed
+    v0.0.1: digest: sha256:416d90b81be5c0c347c4a75b2ab84060aa2f5de3660bce57a0a4fba88ce7ea61 size: 939
+    ```
+
+    </details>
+
+1. Install `memcached-operator` with OLM.
+
+    ```
+    operator-sdk run bundle docker.io/nakamasato/memcached-operator:v0.0.1
+    ```
+
+    <details><summary>result</summary>
+
+    ```
+
+    ```
+
+    </details>
+
+1. Cleanup
+    ```
+    operator-sdk cleanup memcached-operator
     ```

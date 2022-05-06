@@ -52,5 +52,20 @@ sed -i '149r Makefile.patch' Makefile
 echo "======== INIT PROJECT COMPLETED ==========="
 
 # 2. Create API (resource and controller) for Memcached
-# Fix `Makefile` L150~177
-# operator-sdk create api --group cache --version v1alpha1 --kind Memcached --resource --controller
+operator-sdk create api --group cache --version v1alpha1 --kind Memcached --resource --controller
+
+tmpfile=02-memcached-spec-and-status
+cat << EOF > $tmpfile
+// MemcachedSpec defines the desired state of Memcached
+type MemcachedSpec struct {
+	//+kubebuilder:validation:Minimum=0
+	// Size is the size of the memcached deployment
+	Size int32 `json:"size"`
+}
+
+// MemcachedStatus defines the observed state of Memcached
+type MemcachedStatus struct {
+	// Nodes are the names of the memcached pods
+	Nodes []string `json:"nodes"`
+}
+EOF

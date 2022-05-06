@@ -10,7 +10,9 @@ metadata:
           "metadata": {
             "name": "memcached-sample"
           },
-          "spec": null
+          "spec": {
+            "size": 2
+          }
         }
       ]
     capabilities: Basic Install
@@ -37,6 +39,18 @@ spec:
       clusterPermissions:
       - rules:
         - apiGroups:
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
           - cache.example.com
           resources:
           - memcacheds
@@ -62,6 +76,13 @@ spec:
           - get
           - patch
           - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+          - list
         - apiGroups:
           - authentication.k8s.io
           resources:
@@ -117,7 +138,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: controller:latest
+                image: nakamasato/memcached-operator:v0.0.1
                 livenessProbe:
                   httpGet:
                     path: /healthz
