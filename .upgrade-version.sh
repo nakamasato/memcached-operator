@@ -51,8 +51,8 @@ pre-commit run -a || true
 git commit -am "1. Create a project"
 echo "======== INIT PROJECT fix Makefile =========="
 
-sed -i '150,177d' Makefile
-sed -i '149r Makefile.patch' Makefile
+gsed -i '150,177d' Makefile # TODO: gnu-sed
+gsed -i '149r Makefile.patch' Makefile # TODO: gnu-sed
 
 echo "======== INIT PROJECT COMPLETED ==========="
 
