@@ -20,11 +20,11 @@ if [ -n "$(git status --porcelain)" ]; then
     echo "there are changes";
     if [[ $commit_message = $last_commit_message ]]; then
         echo "duplicated commit -> amend"
-        pre-commit run -a
+        pre-commit run -a || true
         git add . && git commit -a --amend --no-edit
     else
         echo "create a commit"
-        pre-commit run -a
+        pre-commit run -a || true
         git add . && git commit -m "$commit_message"
     fi
 else
@@ -44,7 +44,7 @@ echo "======== INIT PROJECT operator-sdk init completed =========="
 echo "git checkout docs mkdocs.yml"
 git checkout docs mkdocs.yml Makefile.patch
 echo "git add & commit"
-pre-commit run -a
+pre-commit run -a || true
 git add . && git commit -m "1. Create a project"
 echo "======== INIT PROJECT fix Makefile =========="
 
