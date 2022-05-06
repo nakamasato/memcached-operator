@@ -5,8 +5,8 @@ set -eu
 # 0. Clean up
 echo "======== CLEAN UP ==========="
 
-rm -rf api config controllers hack bin 2> /dev/null
-for f in .dockerignore .gitignore *.go go.* Makefile PROJECT Dockerfile; do
+rm -rf api config controllers hack bin bundle 2> /dev/null
+for f in .dockerignore .gitignore *.go go.* Makefile PROJECT Dockerfile bundle.Dockerfile; do
     if [ -f "$f" ] ; then
         rm $f
     fi
@@ -20,9 +20,11 @@ if [ -n "$(git status --porcelain)" ]; then
     echo "there are changes";
     if [[ $commit_message = $last_commit_message ]]; then
         echo "duplicated commit -> amend"
+        pre-commit run -a
         git add . && git commit -a --amend --no-edit
     else
         echo "create a commit"
+        pre-commit run -a
         git add . && git commit -m "$commit_message"
     fi
 else
@@ -36,11 +38,11 @@ echo "======== CLEAN UP COMPLETED ==========="
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
-rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
+rm -rf docs mkdocs.yml Makefile.patch # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
 echo "======== INIT PROJECT operator-sdk init completed =========="
 echo "git checkout docs mkdocs.yml"
-git checkout docs mkdocs.yml
+git checkout docs mkdocs.yml Makefile.patch
 echo "git add & commit"
 pre-commit run -a
 git add . && git commit -m "1. Create a project"
