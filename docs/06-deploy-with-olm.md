@@ -1,5 +1,20 @@
 # 6. Deploy with OLM
 
+
+## Version
+
+- operator-lifecycle-manager: [v0.21.1](https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/v0.21.1)
+## Steps
+
+1. Build and push the latest docker image.
+
+    In this example, I'm using my own docker hub registry: [nakamasato/memcached-operator](https://hub.docker.com/repository/docker/nakamasato/memcached-operator)
+
+    ```
+    IMG=nakamasato/memcached-operator:v0.0.1
+    IMG=$IMG make docker-build docker-push
+    ```
+
 1. Install OLM into your Kubernetes cluster.
 
     ```
@@ -87,10 +102,7 @@
 
 1. Bundle your operator with `BUNDLE_IMG`.
 
-    In this example, I'm using my own docker hub registry: https://hub.docker.com/repository/docker/nakamasato/memcached-operator
-
     ```
-    IMG=nakamasato/memcached-operator:v0.0.1
     IMG=$IMG make bundle
     ```
 
@@ -110,37 +122,40 @@
 
     </details>
 
+    Use another repository for bundle: [nakamasato/memcached-operator-bundle](https://hub.docker.com/repository/docker/nakamasato/memcached-operator-bundle)
+
     ```
-    make bundle-build bundle-push BUNDLE_IMG=$IMG
+    make bundle-build bundle-push BUNDLE_IMG=docker.io/nakamasato/memcached-operator-bundle:v0.0.1
     ```
 
     <details><summary>result</summary>
 
     ```
-    docker build -f bundle.Dockerfile -t nakamasato/memcached-operator:v0.0.1 .
-    [+] Building 0.8s (7/7) FINISHED
-     => [internal] load build definition from bundle.Dockerfile                                                  0.1s
-     => => transferring dockerfile: 970B                                                                         0.0s
-     => [internal] load .dockerignore                                                                            0.0s
-     => => transferring context: 171B                                                                            0.0s
-     => [internal] load build context                                                                            0.1s
-     => => transferring context: 12.13kB                                                                         0.1s
-     => [1/3] COPY bundle/manifests /manifests/                                                                  0.0s
-     => [2/3] COPY bundle/metadata /metadata/                                                                    0.1s
-     => [3/3] COPY bundle/tests/scorecard /tests/scorecard/                                                      0.0s
-         => exporting to image                                                                                       0.1s
-         => => exporting layers                                                                                      0.1s
-     => => writing image sha256:dedce44bfa7f53e89a6d57daeec3d2f745607405b131f7b0fbca3bf80538a381                 0.0s
-     => => naming to docker.io/nakamasato/memcached-operator:v0.0.1                                              0.0s
+    make bundle-build bundle-push BUNDLE_IMG=docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+    docker build -f bundle.Dockerfile -t docker.io/nakamasato/memcached-operator-bundle:v0.0.1 .
+    [+] Building 0.5s (7/7) FINISHED
+     => [internal] load build definition from bundle.Dockerfile                                             0.1s
+     => => transferring dockerfile: 44B                                                                     0.0s
+     => [internal] load .dockerignore                                                                       0.0s
+     => => transferring context: 35B                                                                        0.0s
+     => [internal] load build context                                                                       0.1s
+     => => transferring context: 741B                                                                       0.0s
+     => CACHED [1/3] COPY bundle/manifests /manifests/                                                      0.0s
+     => CACHED [2/3] COPY bundle/metadata /metadata/                                                        0.0s
+     => CACHED [3/3] COPY bundle/tests/scorecard /tests/scorecard/                                          0.0s
+     => exporting to image                                                                                  0.0s
+     => => exporting layers                                                                                 0.0s
+     => => writing image sha256:7f35a82eb086d5476d518c14d3b467d628032d74a083cd8cb2991ccab57e0707            0.0s
+     => => naming to docker.io/nakamasato/memcached-operator-bundle:v0.0.1                                  0.0s
 
     Use 'docker scan' to run Snyk tests against images to find vulnerabilities and learn how to fix them
-    /Library/Developer/CommandLineTools/usr/bin/make docker-push IMG=nakamasato/memcached-operator:v0.0.1
-    docker push nakamasato/memcached-operator:v0.0.1
-    The push refers to repository [docker.io/nakamasato/memcached-operator]
-    4748905d6dc6: Pushed
-    8973f608ef2b: Pushed
-    dd7513d00c74: Pushed
-    v0.0.1: digest: sha256:416d90b81be5c0c347c4a75b2ab84060aa2f5de3660bce57a0a4fba88ce7ea61 size: 939
+    /Library/Developer/CommandLineTools/usr/bin/make docker-push IMG=docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+    docker push docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+    The push refers to repository [docker.io/nakamasato/memcached-operator-bundle]
+    018b84f0bc42: Mounted from nakamasato/memcached-operator-bundle-v0.0.1
+    1fe6adf17d6a: Mounted from nakamasato/memcached-operator-bundle-v0.0.1
+    3e3e3b47b77a: Mounted from nakamasato/memcached-operator-bundle-v0.0.1
+    v0.0.1: digest: sha256:22b7a22279a5f45d9b4eae27ed5e537ae5aeb53ed4ac6572108ba73cf22a8a7a size: 939
     ```
 
     </details>
@@ -148,18 +163,107 @@
 1. Install `memcached-operator` with OLM.
 
     ```
-    operator-sdk run bundle docker.io/nakamasato/memcached-operator:v0.0.1
+    operator-sdk run bundle docker.io/nakamasato/memcached-operator-bundle:v0.0.1
     ```
 
     <details><summary>result</summary>
 
     ```
-
+    INFO[0023] Successfully created registry pod: docker-io-nakamasato-memcached-operator-bundle-v0-0-1
+    INFO[0023] Created CatalogSource: memcached-operator-catalog
+    INFO[0023] OperatorGroup "operator-sdk-og" created
+    INFO[0023] Created Subscription: memcached-operator-v0-0-1-sub
+    INFO[0032] Approved InstallPlan install-wq7t2 for the Subscription: memcached-operator-v0-0-1-sub
+    INFO[0032] Waiting for ClusterServiceVersion "default/memcached-operator.v0.0.1" to reach 'Succeeded' phase
+    INFO[0032]   Waiting for ClusterServiceVersion "default/memcached-operator.v0.0.1" to appear
+    INFO[0066]   Found ClusterServiceVersion "default/memcached-operator.v0.0.1" phase: Installing
+    INFO[0097]   Found ClusterServiceVersion "default/memcached-operator.v0.0.1" phase: Succeeded
+    INFO[0097] OLM has successfully installed "memcached-operator.v0.0.1"
     ```
 
     </details>
 
-1. Cleanup
+    Check Pods:
+
+    ```
+    kubectl get po
+    NAME                                                              READY   STATUS      RESTARTS   AGE
+    d71c67e797ef5c5fbbaed16811c5e6052504e58d7c9b2b6e9c19bee2699brks   0/1     Completed   0          112s
+    docker-io-nakamasato-memcached-operator-bundle-v0-0-1             1/1     Running     0          2m6s
+    memcached-operator-controller-manager-c9457868d-s7m2w             2/2     Running     0          78s
+    ```
+
+1. Create Custom Resource.
+
+    ```
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    Check:
+    ```
+    kubectl get memcached,deploy memcached-sample
+    NAME                                           AGE
+    memcached.cache.example.com/memcached-sample   40s
+
+    NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+    deployment.apps/memcached-sample   2/2     2            2           40s
+    ```
+
+1. Clean up the custom resource.
+
+    ```
+    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+1. Uninstall `memcached-operator`.
+
     ```
     operator-sdk cleanup memcached-operator
     ```
+
+1. Uninstall OLM.
+
+    ```
+    operator-sdk olm uninstall
+    ```
+
+    <details><summary>result</summary>
+
+    ```
+    INFO[0000] Fetching CRDs for version "v0.21.1"
+    INFO[0000] Fetching resources for resolved version "v0.21.1"
+    INFO[0003] Uninstalling resources for version "v0.21.1"
+    INFO[0003]   Deleting CustomResourceDefinition "catalogsources.operators.coreos.com"
+    INFO[0003]   Deleting CustomResourceDefinition "clusterserviceversions.operators.coreos.com"
+    INFO[0011]   Deleting CustomResourceDefinition "installplans.operators.coreos.com"
+    INFO[0018]   Deleting CustomResourceDefinition "olmconfigs.operators.coreos.com"
+    INFO[0019]   Deleting CustomResourceDefinition "operatorconditions.operators.coreos.com"
+    INFO[0019]   Deleting CustomResourceDefinition "operatorgroups.operators.coreos.com"
+    INFO[0023]   Deleting CustomResourceDefinition "operators.operators.coreos.com"
+    INFO[0024]   Deleting CustomResourceDefinition "subscriptions.operators.coreos.com"
+    INFO[0024]   Deleting Namespace "olm"
+    INFO[0037]   Deleting Namespace "operators"
+    INFO[0043]   Deleting ServiceAccount "olm/olm-operator-serviceaccount"
+    INFO[0043]     ServiceAccount "olm/olm-operator-serviceaccount" does not exist
+    INFO[0043]   Deleting ClusterRole "system:controller:operator-lifecycle-manager"
+    INFO[0043]   Deleting ClusterRoleBinding "olm-operator-binding-olm"
+    INFO[0043]   Deleting OLMConfig "cluster"
+    INFO[0043]     OLMConfig "cluster" does not exist
+    INFO[0044]   Deleting Deployment "olm/olm-operator"
+    INFO[0044]     Deployment "olm/olm-operator" does not exist
+    INFO[0044]   Deleting Deployment "olm/catalog-operator"
+    INFO[0044]     Deployment "olm/catalog-operator" does not exist
+    INFO[0044]   Deleting ClusterRole "aggregate-olm-edit"
+    INFO[0044]   Deleting ClusterRole "aggregate-olm-view"
+    INFO[0044]   Deleting OperatorGroup "operators/global-operators"
+    INFO[0044]     OperatorGroup "operators/global-operators" does not exist
+    INFO[0044]   Deleting OperatorGroup "olm/olm-operators"
+    INFO[0044]     OperatorGroup "olm/olm-operators" does not exist
+    INFO[0044]   Deleting ClusterServiceVersion "olm/packageserver"
+    INFO[0044]     ClusterServiceVersion "olm/packageserver" does not exist
+    INFO[0044]   Deleting CatalogSource "olm/operatorhubio-catalog"
+    INFO[0044]     CatalogSource "olm/operatorhubio-catalog" does not exist
+    INFO[0044] Successfully uninstalled OLM version "v0.21.1"
+    ```
+
+    </details>
