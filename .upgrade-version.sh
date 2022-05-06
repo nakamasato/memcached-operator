@@ -58,7 +58,11 @@ echo "======== INIT PROJECT COMPLETED ==========="
 
 # 2. Create API (resource and controller) for Memcached
 operator-sdk create api --group cache --version v1alpha1 --kind Memcached --resource --controller
+git add .
+pre-commit run -a || true
+git commit -am "2. Create API (resource and controller) for Memcached"
 
+# 3. Define API
 # tmpfile=02-memcached-spec-and-status
 # cat << EOF > $tmpfile
 # // MemcachedSpec defines the desired state of Memcached
