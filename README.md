@@ -1,4 +1,4 @@
-# Quickstart for Go-based Operators
+# memcached-operator with Operator SDK (Go-based)
 
 https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
 
