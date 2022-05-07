@@ -247,3 +247,54 @@ gsed -i '/spec:/{n;s/.*/  size: 2/}' config/samples/cache_v1alpha1_memcached.yam
 git add .
 pre-commit run -a || true
 git commit -am "4.3. Implement Controller - Ensure the deployment size is the same as the spec"
+
+## 4.4 Update the Memcached status with the pod names.
+gsed -i '/^import/a "reflect"' $MEMCACHED_CONTROLLER_GO_FILE
+cat << EOF > tmpfile
+
+// 4. Update the Memcached status with the pod names
+// List the pods for this memcached's deployment
+podList := &corev1.PodList{}
+listOpts := []client.ListOption{
+        client.InNamespace(memcached.Namespace),
+        client.MatchingLabels(labelsForMemcached(memcached.Name)),
+}
+if err = r.List(ctx, podList, listOpts...); err != nil {
+        log.Error(err, "4. Update the Memcached status with the pod names. Failed to list pods", "Memcached.Namespace", memcached.Namespace, "Memcached.Name", memcached.Name)
+        return ctrl.Result{}, err
+}
+podNames := getPodNames(podList.Items)
+log.Info("4. Update the Memcached status with the pod names. Pod list", "podNames", podNames)
+// Update status.Nodes if needed
+if !reflect.DeepEqual(podNames, memcached.Status.Nodes) {
+        memcached.Status.Nodes = podNames
+        err := r.Status().Update(ctx, memcached)
+        if err != nil {
+                log.Error(err, "4. Update the Memcached status with the pod names. Failed to update Memcached status")
+                return ctrl.Result{}, err
+        }
+}
+log.Info("4. Update the Memcached status with the pod names. Update memcached.Status", "memcached.Status.Nodes", memcached.Status.Nodes)
+EOF
+# Add the contents before the last return in Reconcile function.
+gsed -i $'/^\treturn ctrl.Result{}, nil/{e cat tmpfile\n}' $MEMCACHED_CONTROLLER_GO_FILE
+
+cat << EOF > tmpfile
+
+// getPodNames returns the pod names of the array of pods passed in
+func getPodNames(pods []corev1.Pod) []string {
+    var podNames []string
+    for _, pod := range pods {
+            podNames = append(podNames, pod.Name)
+    }
+    return podNames
+}
+EOF
+cat tmpfile >> $MEMCACHED_CONTROLLER_GO_FILE
+gsed -i '/kubebuilder:rbac:groups=apps,resources=deployments,verbs=get/a \/\/+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;' $MEMCACHED_CONTROLLER_GO_FILE
+rm tmpfile
+make fmt manifests
+
+git add .
+pre-commit run -a || true
+git commit -am "4.4. Implement Controller - Update the Memcached status with the pod names"
