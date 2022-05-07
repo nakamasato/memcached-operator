@@ -298,3 +298,69 @@ make fmt manifests
 git add .
 pre-commit run -a || true
 git commit -am "4.4. Implement Controller - Update the Memcached status with the pod names"
+
+# 5. Deploy with Deployment
+
+cd config/manager && ../../bin/kustomize edit set image controller=nakamasato/memcached-operator && cd -
+
+git add .
+pre-commit run -a || true
+git commit -am "5. Deploy with Deployment"
+
+# 6. Deploy with OLM
+
+cat << EOF > config/manifests/bases/memcached-operator.clusterserviceversion.yaml
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: memcached-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Memcached is the Schema for the memcacheds API
+      displayName: Memcached
+      kind: Memcached
+      name: memcacheds.cache.example.com
+      version: v1alpha1
+  description: memcached-operator
+  displayName: memcached-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - memcached
+  links:
+  - name: Memcached Operator
+    url: https://memcached-operator.domain
+  maintainers:
+  - email: masatonaka1989@gmail.com
+    name: naka
+  maturity: alpha
+  provider:
+    name: naka
+  version: 0.0.0
+EOF
+
+IMG=nakamasato/memcached-operator
+make bundle
+git add .
+pre-commit run -a || true
+git commit -am "6. Deploy with OLM"
