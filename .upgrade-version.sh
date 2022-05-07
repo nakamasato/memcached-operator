@@ -85,6 +85,8 @@ type MemcachedStatus struct {
 EOF
 gsed -i "/MemcachedStatus defines/ r tmpfile" api/v1alpha1/memcached_types.go
 rm tmpfile
+## fmt
+make fmt
 
 ## Update CRD and deepcopy
 make generate manifests
