@@ -131,7 +131,7 @@ make fmt
 
 git add .
 pre-commit run -a || true
-git commit -am "4.1. Fetch Memcached instance."
+git commit -am "4.1. Implement Controller - Fetch the Memcached instance"
 
 ## 4.2 Check if the deployment already exists, and create one if not exists.
 gsed -i '/^import/a "k8s.io/apimachinery/pkg/types"' $MEMCACHED_CONTROLLER_GO_FILE
@@ -218,4 +218,32 @@ make fmt manifests
 
 git add .
 pre-commit run -a || true
-git commit -am "4.2 Check if the deployment already exists, and create one if not exists."
+git commit -am "4.2. Implement Controller - Check if the deployment already exists, and create one if not exists"
+
+## 4.3 Ensure the deployment size is the same as the spec.
+
+cat << EOF > tmpfile
+
+// 3. Ensure the deployment size is the same as the spec
+size := memcached.Spec.Size
+if *found.Spec.Replicas != size {
+        found.Spec.Replicas = &size
+        err = r.Update(ctx, found)
+        if err != nil {
+                log.Error(err, "3. Ensure the deployment size is the same as the spec. Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+                return ctrl.Result{}, err
+        }
+        // Spec updated - return and requeue
+        log.Info("3. Ensure the deployment size is the same as the spec. Update deployment size", "Deployment.Spec.Replicas", size)
+        return ctrl.Result{Requeue: true}, nil
+}
+EOF
+# Add the contents before the last return in Reconcile function.
+gsed -i $'/^\treturn ctrl.Result{}, nil/{e cat tmpfile\n}' $MEMCACHED_CONTROLLER_GO_FILE
+rm tmpfile
+make fmt
+gsed -i '/spec:/{n;s/.*/  size: 2/}' config/samples/cache_v1alpha1_memcached.yaml
+
+git add .
+pre-commit run -a || true
+git commit -am "4.3. Implement Controller - Ensure the deployment size is the same as the spec"
