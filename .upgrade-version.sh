@@ -64,7 +64,7 @@ git commit -am "2. Create API (resource and controller) for Memcached"
 
 # 3. Define API
 ## MemcachedSpec
-gsed -ie '/type MemcachedSpec struct {/,/}/d' api/v1alpha1/memcached_types.go
+gsed -i '/type MemcachedSpec struct {/,/}/d' api/v1alpha1/memcached_types.go
 cat << EOF > tmpfile
 type MemcachedSpec struct {
         //+kubebuilder:validation:Minimum=0
