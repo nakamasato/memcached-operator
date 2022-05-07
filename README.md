@@ -31,12 +31,19 @@ You can upgrade the version with the following command:
 ```
 
 ## Contents
+<!-- contents start -->
+1. [ Create a project](docs/01-initialize-operator.md)
+1. [ Create API (resource and controller) for Memcached](docs/02-create-api.md)
+1. [ Define Memcached API (Custom Resource Definition)](docs/03-define-api.md)
+1. [ Implement the controller](docs/04-implement-controller.md)
+1. [ Deploy with `Deployment`](docs/05-deploy-with-deployment.md)
+1. [ Deploy with OLM](docs/06-deploy-with-olm.md)
+1. [ Write controller tests](docs/07-write-controller-test.md)
+1. [ Continuous Integration](docs/08-ci.md)
+<!-- contents end -->
 
-1. [Initialize an operator](docs/01-initialize-operator.md)
-1. [Add API (resource and controller) for Memcached](docs/02-create-api.md)
-1. [Define Memcached API (Custom Resource Definition)](docs/03-define-api.md)
-1. [Implement the controller](docs/04-implement-controller.md)
-1. [Deploy with Deployment](docs/05-deploy-with-deployment.md)
-1. [Write controller tests](docs/06-write-controller-test.md)
-1. [CI](docs/07-ci.md)
-...
+Update contents:
+
+```
+./update-content.sh
+```
