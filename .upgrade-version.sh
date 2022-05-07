@@ -308,7 +308,7 @@ pre-commit run -a || true
 git commit -am "5. Deploy with Deployment"
 
 # 6. Deploy with OLM
-
+mkdir -p config/manifests/bases
 cat << EOF > config/manifests/bases/memcached-operator.clusterserviceversion.yaml
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
