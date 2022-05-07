@@ -64,7 +64,8 @@ git commit -am "2. Create API (resource and controller) for Memcached"
 
 # 3. Define API
 ## MemcachedSpec
-gsed -i '/type MemcachedSpec struct {/,/}/d' api/v1alpha1/memcached_types.go
+MEMCACHED_GO_TYPE_FILE=api/v1alpha1/memcached_types.go
+gsed -i '/type MemcachedSpec struct {/,/}/d' $MEMCACHED_GO_TYPE_FILE
 cat << EOF > tmpfile
 type MemcachedSpec struct {
         //+kubebuilder:validation:Minimum=0
@@ -72,18 +73,18 @@ type MemcachedSpec struct {
         Size int32 \`json:"size"\`
 }
 EOF
-gsed -i "/MemcachedSpec defines/ r tmpfile" api/v1alpha1/memcached_types.go
+gsed -i "/MemcachedSpec defines/ r tmpfile" $MEMCACHED_GO_TYPE_FILE
 rm tmpfile
 
 ## MemcachedStatus
-gsed -i '/type MemcachedStatus struct {/,/}/d' api/v1alpha1/memcached_types.go
+gsed -i '/type MemcachedStatus struct {/,/}/d' $MEMCACHED_GO_TYPE_FILE
 cat << EOF > tmpfile
 type MemcachedStatus struct {
         // Nodes are the names of the memcached pods
         Nodes []string \`json:"nodes"\`
 }
 EOF
-gsed -i "/MemcachedStatus defines/ r tmpfile" api/v1alpha1/memcached_types.go
+gsed -i "/MemcachedStatus defines/ r tmpfile" $MEMCACHED_GO_TYPE_FILE
 rm tmpfile
 ## fmt
 make fmt
@@ -96,3 +97,38 @@ gsed -i '/spec:/{n;s/.*/  size: 3/}' config/samples/cache_v1alpha1_memcached.yam
 git add .
 pre-commit run -a || true
 git commit -am "3. Define Memcached API (CRD)"
+
+# 4. Implement the controller
+
+## 4.1. Fetch Memcached instance.
+MEMCACHED_CONTROLLER_GO_FILE=controllers/memcached_controller.go
+
+gsed -i '/^import/a "k8s.io/apimachinery/pkg/api/errors"' $MEMCACHED_CONTROLLER_GO_FILE
+gsed -i '/Reconcile(ctx context.Context, req ctrl.Request) /,/^}/d' $MEMCACHED_CONTROLLER_GO_FILE
+cat << EOF > tmpfile
+func (r *MemcachedReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	log := log.FromContext(ctx)
+
+	// 1. Fetch the Memcached instance
+	memcached := &cachev1alpha1.Memcached{}
+	err := r.Get(ctx, req.NamespacedName, memcached)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		log.Error(err, "1. Fetch the Memcached instance. Failed to get Mmecached")
+		return ctrl.Result{}, err
+	}
+	log.Info("1. Fetch the Memcached instance. Memchached resource found", "memcached.Name", memcached.Name, "memcached.Namespace", memcached.Namespace)
+	return ctrl.Result{}, nil
+}
+EOF
+gsed -i "/pkg\/reconcile/ r tmpfile" $MEMCACHED_CONTROLLER_GO_FILE
+rm tmpfile
+make fmt
+
+git add .
+pre-commit run -a || true
+git commit -am "4.1. Fetch Memcached instance."
