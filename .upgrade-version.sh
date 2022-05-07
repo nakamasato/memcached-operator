@@ -76,7 +76,7 @@ gsed -i "/MemcachedSpec defines/ r tmpfile" api/v1alpha1/memcached_types.go
 rm tmpfile
 
 ## MemcachedStatus
-gsed -ie '/type MemcachedStatus struct {/,/}/d' api/v1alpha1/memcached_types.go
+gsed -i '/type MemcachedStatus struct {/,/}/d' api/v1alpha1/memcached_types.go
 cat << EOF > tmpfile
 type MemcachedStatus struct {
         // Nodes are the names of the memcached pods
