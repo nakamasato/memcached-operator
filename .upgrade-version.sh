@@ -63,18 +63,34 @@ pre-commit run -a || true
 git commit -am "2. Create API (resource and controller) for Memcached"
 
 # 3. Define API
-# tmpfile=02-memcached-spec-and-status
-# cat << EOF > $tmpfile
-# // MemcachedSpec defines the desired state of Memcached
-# type MemcachedSpec struct {
-# 	//+kubebuilder:validation:Minimum=0
-# 	// Size is the size of the memcached deployment
-# 	Size int32 `json:"size"`
-# }
+## MemcachedSpec
+gsed -ie '/type MemcachedSpec struct {/,/}/d' api/v1alpha1/memcached_types.go
+cat << EOF > tmpfile
+type MemcachedSpec struct {
+        //+kubebuilder:validation:Minimum=0
+        // Size is the size of the memcached deployment
+        Size int32 \`json:"size"\`
+}
+EOF
+gsed -i "/MemcachedSpec defines/ r tmpfile" api/v1alpha1/memcached_types.go
+rm tmpfile
 
-# // MemcachedStatus defines the observed state of Memcached
-# type MemcachedStatus struct {
-# 	// Nodes are the names of the memcached pods
-# 	Nodes []string `json:"nodes"`
-# }
-# EOF
+## MemcachedStatus
+gsed -ie '/type MemcachedStatus struct {/,/}/d' api/v1alpha1/memcached_types.go
+cat << EOF > tmpfile
+type MemcachedStatus struct {
+        // Nodes are the names of the memcached pods
+        Nodes []string \`json:"nodes"\`
+}
+EOF
+gsed -i "/MemcachedStatus defines/ r tmpfile" api/v1alpha1/memcached_types.go
+rm tmpfile
+
+## Update CRD and deepcopy
+make generate manifests
+## Update config/samples/cache_v1alpha1_memcached.yaml
+gsed -i '/spec:/{n;s/.*/  size: 3/}' config/samples/cache_v1alpha1_memcached.yaml
+
+git add .
+pre-commit run -a || true
+git commit -am "3. Define Memcached API (CRD)"
