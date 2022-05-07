@@ -300,7 +300,7 @@ pre-commit run -a || true
 git commit -am "4.4. Implement Controller - Update the Memcached status with the pod names"
 
 # 5. Deploy with Deployment
-
+make kustomize
 cd config/manager && ../../bin/kustomize edit set image controller=nakamasato/memcached-operator && cd -
 
 git add .
