@@ -582,18 +582,18 @@ make test
 
 git add .
 pre-commit run -a || true
-git commit -am "6. Deploy with Deployment"
+git commit -am "5. Write controller test"
 
 
-# 6. Deploy with Deployment
+# 6.1. Deploy with Deployment
 make kustomize
 cd config/manager && ../../bin/kustomize edit set image controller=nakamasato/memcached-operator && cd -
 
 git add .
 pre-commit run -a || true
-git commit -am "6. Deploy with Deployment"
+git commit -am "6.1. Deploy with Deployment"
 
-# 7. Deploy with OLM
+# 6.2. Deploy with OLM
 mkdir -p config/manifests/bases
 cat << EOF > config/manifests/bases/memcached-operator.clusterserviceversion.yaml
 apiVersion: operators.coreos.com/v1alpha1
@@ -649,4 +649,4 @@ IMG=nakamasato/memcached-operator
 make bundle
 git add .
 pre-commit run -a || true
-git commit -am "7. Deploy with OLM"
+git commit -am "6.2. Deploy with OLM"
