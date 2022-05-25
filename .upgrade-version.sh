@@ -580,6 +580,8 @@ make fmt
 go mod tidy
 make test
 
+
+
 # 6. Deploy with Deployment
 make kustomize
 cd config/manager && ../../bin/kustomize edit set image controller=nakamasato/memcached-operator && cd -
