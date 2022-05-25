@@ -580,6 +580,7 @@ make fmt
 go mod tidy
 make test
 
+git add .&&
 
 
 # 6. Deploy with Deployment
