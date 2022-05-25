@@ -1,4 +1,4 @@
-# 6. Deploy with OLM
+# 7. Deploy with OLM
 
 
 ## Version

@@ -36,9 +36,9 @@ You can upgrade the version with the following command:
 1. [Create API (resource and controller) for Memcached](docs/02-create-api.md)
 1. [Define Memcached API (Custom Resource Definition)](docs/03-define-api.md)
 1. [Implement the controller](docs/04-implement-controller.md)
-1. [Deploy with `Deployment`](docs/05-deploy-with-deployment.md)
-1. [Deploy with OLM](docs/06-deploy-with-olm.md)
-1. [Write controller tests](docs/07-write-controller-test.md)
+1. [Write controller tests](docs/05-write-controller-test.md)
+1. [Deploy with `Deployment`](docs/06-deploy-with-deployment.md)
+1. [Deploy with OLM](docs/07-deploy-with-olm.md)
 1. [Continuous Integration](docs/08-ci.md)
 <!-- contents end -->
 

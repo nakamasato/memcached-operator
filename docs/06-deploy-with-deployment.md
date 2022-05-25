@@ -1,4 +1,4 @@
-# 5. Deploy with `Deployment`
+# 6. Deploy with `Deployment`
 
 1. Build docker image and push it to registry.
 
