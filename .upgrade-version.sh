@@ -42,6 +42,11 @@ fi
 
 echo "======== CLEAN UP COMPLETED ==========="
 
+# 0. Update README
+gsed -i '/operator-sdk version:/d' README.md
+gsed -i "/operator-sdk version/a \ \ \ \ $(operator-sdk version)" README.md
+gsed -i '/go version /d' README.md
+gsed -i "/go version/a \ \ \ \ $(go version)" README.md
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
