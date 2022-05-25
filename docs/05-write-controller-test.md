@@ -80,6 +80,7 @@
 ## Write controller's tests
 
 Test cases in `controllers/memcached_controller_test.go`:
+
 1. When `Memcached` is created
     1. `Deployment` should be created.
     1. `Memcached`'s nodes have pods' names.
