@@ -580,7 +580,9 @@ make fmt
 go mod tidy
 make test
 
-git add .&&
+git add .
+pre-commit run -a || true
+git commit -am "6. Deploy with Deployment"
 
 
 # 6. Deploy with Deployment
