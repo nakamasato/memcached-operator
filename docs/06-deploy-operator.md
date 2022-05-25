@@ -1,10 +1,60 @@
-# 7. Deploy with OLM
+# 6. Deploy Operator
 
+## 6.1 Deploy with `Deployment`
 
-## Version
+1. Build docker image and push it to registry.
+
+    ```bash
+    export OPERATOR_IMG="<image registry name>:v0.0.1" # e.g. nakamasato/memcached-operator
+    make docker-build docker-push IMG=$OPERATOR_IMG
+    ```
+
+1. Deploy operator.
+
+    ```bash
+    make deploy IMG=$OPERATOR_IMG
+    ```
+
+1. Add CR.
+
+    ```bash
+    kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+    ```yaml
+    apiVersion: cache.example.com/v1alpha1
+    kind: Memcached
+    metadata:
+      name: memcached-sample
+    spec:
+      size: 3
+    ```
+
+1. Check controller's log.
+
+    ```bash
+    kubectl logs $(kubectl get po -n memcached-operator-system | grep memcached-operator-controller-manager | awk '{print $1}') -c manager -n memcached-operator-system -f
+    ```
+
+1. Delete CR.
+
+    ```bash
+    kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+    ```
+
+1. Uninstall operator.
+
+    ```bash
+    make undeploy
+    ```
+
+## 6.2. Deploy with OLM
+
+Version:
 
 - operator-lifecycle-manager: [v0.21.1](https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/v0.21.1)
-## Steps
+
+Steps:
 
 1. Build and push the latest docker image.
 
