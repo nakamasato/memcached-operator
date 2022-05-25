@@ -5,9 +5,14 @@ set -eux
 # 0. Clean up
 echo "======== CLEAN UP ==========="
 
+KEEP_FILES=(
+    mkdocs.yml
+    README.md
+)
+
 rm -rf api config controllers hack bin bundle 2> /dev/null
-for f in .dockerignore .gitignore *.go go.* Makefile PROJECT Dockerfile bundle.Dockerfile; do
-    if [ -f "$f" ] ; then
+for f in `ls` .dockerignore .gitignore; do
+    if [[ ! " ${KEEP_FILES[*]} " =~ " ${f} " ]] && [ -f "$f" ]; then
         rm $f
     fi
 done
