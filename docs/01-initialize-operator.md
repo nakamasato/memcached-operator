@@ -1,4 +1,4 @@
-# 1. Initialize an operator
+# 1. Create a project
 
 ```
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
