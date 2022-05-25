@@ -40,19 +40,15 @@ echo "======== CLEAN UP COMPLETED ==========="
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
-rm -rf docs mkdocs.yml Makefile.patch # need to make the dir clean before initializing a project
+rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
 echo "======== INIT PROJECT operator-sdk init completed =========="
 echo "git checkout docs mkdocs.yml"
-git checkout docs mkdocs.yml Makefile.patch
+git checkout docs mkdocs.yml
 echo "git add & commit"
 git add .
 pre-commit run -a || true
 git commit -am "1. Create a project"
-echo "======== INIT PROJECT fix Makefile =========="
-
-gsed -i '150,177d' Makefile # TODO: gnu-sed
-gsed -i '149r Makefile.patch' Makefile # TODO: gnu-sed
 
 echo "======== INIT PROJECT COMPLETED ==========="
 
