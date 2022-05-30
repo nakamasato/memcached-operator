@@ -89,6 +89,20 @@ func (r *MemcachedReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 
+	// 3. Ensure the deployment size is the same as the spec
+	size := memcached.Spec.Size
+	if *found.Spec.Replicas != size {
+		found.Spec.Replicas = &size
+		err = r.Update(ctx, found)
+		if err != nil {
+			log.Error(err, "3. Ensure the deployment size is the same as the spec. Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+			return ctrl.Result{}, err
+		}
+		// Spec updated - return
+		log.Info("3. Ensure the deployment size is the same as the spec. Update deployment size", "Deployment.Spec.Replicas", size)
+		return ctrl.Result{}, nil
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -96,6 +110,7 @@ func (r *MemcachedReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 func (r *MemcachedReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cachev1alpha1.Memcached{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }
 
