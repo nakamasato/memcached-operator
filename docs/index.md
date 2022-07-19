@@ -22,14 +22,14 @@ Install the followings:
 
     ```
     operator-sdk version
-    operator-sdk version: "v1.15.0", commit: "f6326e832a8a5e5453d0ad25e86714a0de2c0fc8", kubernetes version: "v1.21", go version: "go1.17.2", GOOS: "darwin", GOARCH: "amd64"
+    operator-sdk version: "v1.20.1", commit: "1780d438cfd87382d034c72703a80d9073b7b6d8", kubernetes version: "v1.23", go version: "go1.17.10", GOOS: "darwin", GOARCH: "amd64"
     ```
 
 1. `go`
 
     ```
     go version
-    go version go1.17.3 darwin/amd64
+    go version go1.17.9 darwin/amd64
     ```
 
 ## Contents
