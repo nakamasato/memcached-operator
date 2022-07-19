@@ -17,9 +17,12 @@ for f in `ls` .dockerignore .gitignore; do
     fi
 done
 
-VERSIONS=$(operator-sdk version | sed 's/operator-sdk version: "\([v0-9\.]*\)".*kubernetes version: \"\([v0-9\.]*\)\".* go version: \"\(go[0-9\.]*\)\".*/operator-sdk: \1, kubernetes: \2, go: \3/g')
-echo $VERSIONS
-commit_message="Remove all files to upgrade versions ($VERSIONS)"
+SDK_VERSION_CLI_RESULT=$(operator-sdk version)
+SDK_VERSION_FOR_COMMIT=$(echo ${SDK_VERSION_CLI_RESULT} | sed 's/operator-sdk version: "\([v0-9\.]*\)".*kubernetes version: \"\([v0-9\.]*\)\".* go version: \"\(go[0-9\.]*\)\".*/operator-sdk: \1, kubernetes: \2, go: \3/g')
+GO_VERSION_CLI_RESULT=$(go version)
+GO_VERSION=$(echo ${GO_VERSION_CLI_RESULT} | sed 's/go version go\([^\s]*\) [^\s]*/\1/')
+echo "SDK_VERSION: $SDK_VERSION_FOR_COMMIT, GO_VERSION: $GO_VERSION_CLI_RESULT"
+commit_message="Remove all files to upgrade versions ($SDK_VERSION_FOR_COMMIT)"
 last_commit_message=$(git log -1 --pretty=%B)
 if [ -n "$(git status --porcelain)" ]; then
     echo "there are changes";
@@ -43,10 +46,14 @@ fi
 echo "======== CLEAN UP COMPLETED ==========="
 
 # 0. Update README
-gsed -i '/operator-sdk version:/d' README.md
-gsed -i "/operator-sdk version/a \ \ \ \ $(operator-sdk version)" README.md
-gsed -i '/go version /d' README.md
-gsed -i "/go version/a \ \ \ \ $(go version)" README.md
+for f in README.md docs/index.md; do
+	gsed -i '/operator-sdk version:/d' $f
+	gsed -i "/operator-sdk version/a \ \ \ \ ${SDK_VERSION}" $f
+	gsed -i '/go version /d' $f
+	gsed -i "/go version/a \ \ \ \ ${GO_VERSION}" $f
+done
+gsed -i "s/go-version:.*/go-version: $GO_VERSION/g" .github/workflows/test.yml
+gsed -i "s/go-version:.*/go_version: $GO_VERSION/g" .github/workflows/reviewdog.yml
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
