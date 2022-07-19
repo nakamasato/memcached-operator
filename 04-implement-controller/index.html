@@ -1,0 +1,981 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>4. Implement the controller - Quickstart for Go-based Operators</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#00bdd6">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+
+  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-9NTB93RVPJ"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&gtag("event","search",{search_term:this.value})}),"undefined"!=typeof location$&&location$.subscribe(function(e){gtag("config","G-9NTB93RVPJ",{page_path:e.pathname})})})</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9NTB93RVPJ"></script>
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="cyan" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#4-implement-the-controller" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Quickstart for Go-based Operators" class="md-header__button md-logo" aria-label="Quickstart for Go-based Operators" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Quickstart for Go-based Operators
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              4. Implement the controller
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Quickstart for Go-based Operators" class="md-nav__button md-logo" aria-label="Quickstart for Go-based Operators" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Quickstart for Go-based Operators
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Quickstart for Go-based Operators
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-initialize-operator/" class="md-nav__link">
+        1. Create a project
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-create-api/" class="md-nav__link">
+        2. Create API (resource and controller) for Memcached
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-define-api/" class="md-nav__link">
+        3. Define Memcached API (Custom Resource Definition)
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          4. Implement the controller
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        4. Implement the controller
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#41-fetch-memcached-instance" class="md-nav__link">
+    4.1. Fetch Memcached instance.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#42-check-if-the-deployment-already-exists-and-create-one-if-not-exists" class="md-nav__link">
+    4.2 Check if the deployment already exists, and create one if not exists.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#43-ensure-the-deployment-size-is-the-same-as-the-spec" class="md-nav__link">
+    4.3 Ensure the deployment size is the same as the spec.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#44-update-the-memcached-status-with-the-pod-names" class="md-nav__link">
+    4.4 Update the Memcached status with the pod names.
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-write-controller-test/" class="md-nav__link">
+        5. Write controller tests
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-deploy-operator/" class="md-nav__link">
+        6. Deploy Operator
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-ci/" class="md-nav__link">
+        7. Continuous Integration
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#41-fetch-memcached-instance" class="md-nav__link">
+    4.1. Fetch Memcached instance.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#42-check-if-the-deployment-already-exists-and-create-one-if-not-exists" class="md-nav__link">
+    4.2 Check if the deployment already exists, and create one if not exists.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#43-ensure-the-deployment-size-is-the-same-as-the-spec" class="md-nav__link">
+    4.3 Ensure the deployment size is the same as the spec.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#44-update-the-memcached-status-with-the-pod-names" class="md-nav__link">
+    4.4 Update the Memcached status with the pod names.
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="4-implement-the-controller">4. Implement the controller</h1>
+<h2 id="41-fetch-memcached-instance">4.1. Fetch Memcached instance.</h2>
+<ol>
+<li>
+<p>Write the following lines in <code>Reconcile</code> function in <a href="">controllers/memcached_controller.go</a> and import the necessary package.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;k8s.io/apimachinery/pkg/api/errors&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ...</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">MemcachedReconciler</span><span class="p">)</span><span class="w"> </span><span class="nx">Reconcile</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">log</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">log</span><span class="p">.</span><span class="nx">FromContext</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// 1. Fetch the Memcached instance</span><span class="w"></span>
+<span class="w">    </span><span class="nx">memcached</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nx">IsNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nx">log</span><span class="p">.</span><span class="nx">Info</span><span class="p">(</span><span class="s">&quot;1. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Error reading the object - requeue the request.</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;1. Fetch the Memcached instance. Failed to get Mmecached&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Info</span><span class="p">(</span><span class="s">&quot;1. Fetch the Memcached instance. Memchached resource found&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;memcached.Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;memcached.Namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</li>
+<li>
+<p>Check</p>
+<ol>
+<li>Run the controller.
+    <div class="highlight"><pre><span></span><code>make run <span class="c1"># if you haven&#39;t installed the CRD, you need to run `make install` before running `make run`</span>
+</code></pre></div></li>
+<li>Apply a <code>Memcached</code> (CR).
+    <div class="highlight"><pre><span></span><code>kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></li>
+<li>
+<p>Check logs.</p>
+<div class="highlight"><pre><span></span><code><span class="m">1</span>.651712191392899e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Delete the CR.
+    <div class="highlight"><pre><span></span><code>kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Check logs.
+    <div class="highlight"><pre><span></span><code><span class="m">1</span>.6517122291298392e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted    <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+</code></pre></div></p>
+</li>
+<li>Stop the controller. <code>ctrl-c</code></li>
+</ol>
+</li>
+</ol>
+<h2 id="42-check-if-the-deployment-already-exists-and-create-one-if-not-exists">4.2 Check if the deployment already exists, and create one if not exists.</h2>
+<ol>
+<li>
+<p>Add necessary packages to <code>import</code>.
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="o">...</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;k8s.io/apimachinery/pkg/types&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">...</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">appsv1</span><span class="w"> </span><span class="s">&quot;k8s.io/api/apps/v1&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">corev1</span><span class="w"> </span><span class="s">&quot;k8s.io/api/core/v1&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nx">metav1</span><span class="w"> </span><span class="s">&quot;k8s.io/apimachinery/pkg/apis/meta/v1&quot;</span><span class="w"></span>
+
+<span class="w">    </span><span class="o">...</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Add the following logics to <code>Reconcile</code> function.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 2. Check if the deployment already exists, if not create a new one</span><span class="w"></span>
+<span class="nx">found</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span><span class="w"></span>
+<span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"> </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">},</span><span class="w"> </span><span class="nx">found</span><span class="p">)</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nx">IsNotFound</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Define a new deployment</span><span class="w"></span>
+<span class="w">        </span><span class="nx">dep</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">deploymentForMemcached</span><span class="p">(</span><span class="nx">memcached</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Info</span><span class="p">(</span><span class="s">&quot;2. Check if the deployment already exists, if not create a new one. Creating a new Deployment&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">dep</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">dep</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Create</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">dep</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nx">log</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;2. Check if the deployment already exists, if not create a new one. Failed to create new Deployment&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">dep</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">dep</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Deployment created successfully - return and requeue</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{</span><span class="nx">Requeue</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;2. Check if the deployment already exists, if not create a new one. Failed to get Deployment&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</li>
+<li>
+<p>Create <code>deploymentForMemcached</code> and <code>labelsForMemcached</code> functions.</p>
+<ol>
+<li>Initialize <code>appv1.Deployment</code></li>
+<li>Set the replica size to <code>m.Spec.Size</code> (from <code>Memcached</code> custom resource)</li>
+<li>Set owner references <code>ctrl.SetControllerReference(m, dep, r.Scheme)</code></li>
+</ol>
+<p><details><summary>deploymentForMemcached</summary></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// deploymentForMemcached returns a memcached Deployment object</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="o">*</span><span class="nx">MemcachedReconciler</span><span class="p">)</span><span class="w"> </span><span class="nx">deploymentForMemcached</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ls</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">labelsForMemcached</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="nx">replicas</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">m</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Size</span><span class="w"></span>
+
+<span class="w">    </span><span class="nx">dep</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nx">ObjectMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nx">Name</span><span class="p">:</span><span class="w">      </span><span class="nx">m</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">m</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="nx">Spec</span><span class="p">:</span><span class="w"> </span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="nx">Replicas</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">replicas</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="nx">Selector</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">LabelSelector</span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="nx">MatchLabels</span><span class="p">:</span><span class="w"> </span><span class="nx">ls</span><span class="p">,</span><span class="w"></span>
+<span class="w">                    </span><span class="p">},</span><span class="w"></span>
+<span class="w">                    </span><span class="nx">Template</span><span class="p">:</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodTemplateSpec</span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="nx">ObjectMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span><span class="w"></span>
+<span class="w">                                    </span><span class="nx">Labels</span><span class="p">:</span><span class="w"> </span><span class="nx">ls</span><span class="p">,</span><span class="w"></span>
+<span class="w">                            </span><span class="p">},</span><span class="w"></span>
+<span class="w">                            </span><span class="nx">Spec</span><span class="p">:</span><span class="w"> </span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodSpec</span><span class="p">{</span><span class="w"></span>
+<span class="w">                                    </span><span class="nx">Containers</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Container</span><span class="p">{{</span><span class="w"></span>
+<span class="w">                                            </span><span class="nx">Image</span><span class="p">:</span><span class="w">   </span><span class="s">&quot;memcached:1.4.36-alpine&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                            </span><span class="nx">Name</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;memcached&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                            </span><span class="nx">Command</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;memcached&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-m=64&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-o&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;modern&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-v&quot;</span><span class="p">},</span><span class="w"></span>
+<span class="w">                                            </span><span class="nx">Ports</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">ContainerPort</span><span class="p">{{</span><span class="w"></span>
+<span class="w">                                                    </span><span class="nx">ContainerPort</span><span class="p">:</span><span class="w"> </span><span class="mi">11211</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                    </span><span class="nx">Name</span><span class="p">:</span><span class="w">          </span><span class="s">&quot;memcached&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                            </span><span class="p">}},</span><span class="w"></span>
+<span class="w">                                    </span><span class="p">}},</span><span class="w"></span>
+<span class="w">                            </span><span class="p">},</span><span class="w"></span>
+<span class="w">                    </span><span class="p">},</span><span class="w"></span>
+<span class="w">            </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Set Memcached instance as the owner and controller</span><span class="w"></span>
+<span class="w">    </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">SetControllerReference</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span><span class="w"> </span><span class="nx">dep</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Scheme</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">dep</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</details>
+<p><details><summary>labelsForMemcached</summary></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// labelsForMemcached returns the labels for selecting the resources</span><span class="w"></span>
+<span class="c1">// belonging to the given memcached CR name.</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">labelsForMemcached</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&quot;app&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;memcached&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;memcached_cr&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">name</span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</details>
+</li>
+<li>
+<p>Add necessary <code>RBAC</code> to the reconciler.</p>
+<div class="highlight"><pre><span></span><code><span class="w">//+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds,verbs=get;list;watch;create;update;patch;delete</span>
+<span class="w">//+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/status,verbs=get;update;patch</span>
+<span class="w">//+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/finalizers,verbs=update</span>
+<span class="gi">+ //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete</span><span class="w"></span>
+
+<span class="w">func (r *MemcachedReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {</span>
+<span class="w"> </span>   // ...<span class="w"></span>
+<span class="w">}</span>
+</code></pre></div>
+<p>Run <code>make manifests</code> to update <code>config/rbac/role.yaml</code>.</p>
+<p><details><summary>diff</summary></p>
+<div class="highlight"><pre><span></span><code><span class="gd">--- a/config/rbac/role.yaml</span><span class="w"></span>
+<span class="gi">+++ b/config/rbac/role.yaml</span><span class="w"></span>
+<span class="gu">@@ -5,6 +5,18 @@ metadata:</span><span class="w"></span>
+<span class="w"> </span>  creationTimestamp: null<span class="w"></span>
+<span class="w"> </span>  name: manager-role<span class="w"></span>
+<span class="w"> </span>rules:<span class="w"></span>
+<span class="gi">+- apiGroups:</span><span class="w"></span>
+<span class="gi">+  - apps</span><span class="w"></span>
+<span class="gi">+  resources:</span><span class="w"></span>
+<span class="gi">+  - deployments</span><span class="w"></span>
+<span class="gi">+  verbs:</span><span class="w"></span>
+<span class="gi">+  - create</span><span class="w"></span>
+<span class="gi">+  - delete</span><span class="w"></span>
+<span class="gi">+  - get</span><span class="w"></span>
+<span class="gi">+  - list</span><span class="w"></span>
+<span class="gi">+  - patch</span><span class="w"></span>
+<span class="gi">+  - update</span><span class="w"></span>
+<span class="gi">+  - watch</span><span class="w"></span>
+</code></pre></div>
+</details>
+</li>
+<li>
+<p>Add <code>Owns(&amp;appsv1.Deployment{})</code> to the controller manager.</p>
+<div class="highlight"><pre><span></span><code><span class="w"> </span>// SetupWithManager sets up the controller with the Manager.<span class="w"></span>
+<span class="w"> </span>func (r *MemcachedReconciler) SetupWithManager(mgr ctrl.Manager) error {<span class="w"></span>
+<span class="w"> </span>    return ctrl.NewControllerManagedBy(mgr).<span class="w"></span>
+<span class="w"> </span>        For(&amp;cachev1alpha1.Memcached{}).<span class="w"></span>
+<span class="gi">+        Owns(&amp;appsv1.Deployment{}). // To capture changes of the Deployments owned by this controller</span><span class="w"></span>
+<span class="w"> </span>        Complete(r)<span class="w"></span>
+<span class="w"> </span>}<span class="w"></span>
+</code></pre></div>
+<ul>
+<li><code>For</code> specifies the first resource to watch.</li>
+<li><code>Owns</code> specifies the secondary resource to watch. Only capture changes of the Deployments owned by this controller.</li>
+</ul>
+</li>
+<li>
+<p>Check</p>
+<ol>
+<li>Run the controller.
+    <div class="highlight"><pre><span></span><code>make run
+</code></pre></div></li>
+<li>Apply a <code>Memcached</code> (CR).
+    <div class="highlight"><pre><span></span><code>kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></li>
+<li>
+<p>Check logs.</p>
+<div class="highlight"><pre><span></span><code><span class="m">1</span>.651716003245384e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716003245449e+09   INFO    controller.memcached    <span class="m">2</span>. Check <span class="k">if</span> the deployment already exists, <span class="k">if</span> not create a new one. Creating a new Deployment   <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;Deployment.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;Deployment.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716003421142e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716003426686e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.65171600352492e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716004351556e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.6517160069085371e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716020319972e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716021237856e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716025396706e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+</code></pre></div>
+<p>There are 10 lines of logs:
+1. When <code>Memcached</code> object is created.
+1. Create <code>Deployment</code>.
+1. Requeued event
+1. <code>Deployment</code> creation event and more events are created accordingly. (<code>Owns</code>)</p>
+</li>
+<li>
+<p>Check <code>Deployment</code>.</p>
+<div class="highlight"><pre><span></span><code>kubectl get deploy memcached-sample
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+memcached-sample   3/3     3            3           19s
+</code></pre></div>
+</li>
+<li>
+<p>Delete the CR.
+    <div class="highlight"><pre><span></span><code>kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Check logs.
+    <div class="highlight"><pre><span></span><code><span class="m">1</span>.651716313736277e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted    <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.65171631389033e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted    <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+</code></pre></div></p>
+</li>
+<li>Check <code>Deployment</code>.
+    <div class="highlight"><pre><span></span><code>kubectl get deploy
+No resources found in default namespace.
+</code></pre></div></li>
+<li>Stop the controller. <code>ctrl-c</code></li>
+</ol>
+</li>
+</ol>
+<h2 id="43-ensure-the-deployment-size-is-the-same-as-the-spec">4.3 Ensure the deployment size is the same as the spec.</h2>
+<ol>
+<li>
+<p>Add the following lines to <code>Reconcile</code> function.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 3. Ensure the deployment size is the same as the spec</span><span class="w"></span>
+<span class="nx">size</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Size</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="o">*</span><span class="nx">found</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nx">size</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">found</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">size</span><span class="w"></span>
+<span class="w">        </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">found</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nx">log</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;3. Ensure the deployment size is the same as the spec. Failed to update Deployment&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">found</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">found</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Spec updated - return and requeue</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Info</span><span class="p">(</span><span class="s">&quot;3. Ensure the deployment size is the same as the spec. Update deployment size&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Deployment.Spec.Replicas&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">size</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{</span><span class="nx">Requeue</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span><span class="w"> </span><span class="kc">nil</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</li>
+<li>
+<p>Check</p>
+<ol>
+<li>
+<p>Run the controller.
+    <div class="highlight"><pre><span></span><code>make run
+</code></pre></div></p>
+</li>
+<li>
+<p>Apply a <code>Memcached</code> (CR).
+    <div class="highlight"><pre><span></span><code>kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Check <code>Deployment</code>.</p>
+<div class="highlight"><pre><span></span><code>kubectl get deploy memcached-sample
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+memcached-sample   3/3     3            3           19s
+</code></pre></div>
+</li>
+<li>
+<p>Change the size to 2 in <a href="">config/samples/cache_v1alpha1_memcached.yaml</a></p>
+<div class="highlight"><pre><span></span><code>kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div>
+</li>
+<li>
+<p>Check logs.</p>
+<div class="highlight"><pre><span></span><code><span class="m">1</span>.6517166666855512e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716666815873e+09   INFO    controller.memcached    <span class="m">3</span>. Ensure the deployment size is the same as the spec. Update deployment size   <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;Deployment.Spec.Replicas&quot;</span>: <span class="m">2</span><span class="o">}</span>
+<span class="m">1</span>.651716666815955e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651716666821547e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.65171666694696e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.65171666713287e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Check <code>Deployment</code>.</p>
+<div class="highlight"><pre><span></span><code>kubectl get deploy
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+memcached-sample   2/2     2            2           115s
+</code></pre></div>
+</li>
+<li>
+<p>Delete the CR.
+    <div class="highlight"><pre><span></span><code>kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Check logs.
+    <div class="highlight"><pre><span></span><code><span class="m">1</span>.65171673062515e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted    <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.65171673093264e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memcached resource not found. Ignoring since object must be deleted    <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+</code></pre></div></p>
+</li>
+<li>Check <code>Deployment</code>.
+    <div class="highlight"><pre><span></span><code>kubectl get deploy
+No resources found in default namespace.
+</code></pre></div></li>
+<li>Stop the controller. <code>ctrl-c</code></li>
+</ol>
+</li>
+</ol>
+<h2 id="44-update-the-memcached-status-with-the-pod-names">4.4 Update the Memcached status with the pod names.</h2>
+<ol>
+<li>
+<p>Add <code>"reflect"</code> to <code>import</code>.
+    <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;reflect&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ...</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Add the following logic to <code>Reconcile</code> functioin.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 4. Update the Memcached status with the pod names</span><span class="w"></span>
+<span class="c1">// List the pods for this memcached&#39;s deployment</span><span class="w"></span>
+<span class="nx">podList</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">PodList</span><span class="p">{}</span><span class="w"></span>
+<span class="nx">listOpts</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="nx">client</span><span class="p">.</span><span class="nx">ListOption</span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">client</span><span class="p">.</span><span class="nx">InNamespace</span><span class="p">(</span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">),</span><span class="w"></span>
+<span class="w">        </span><span class="nx">client</span><span class="p">.</span><span class="nx">MatchingLabels</span><span class="p">(</span><span class="nx">labelsForMemcached</span><span class="p">(</span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Name</span><span class="p">)),</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">List</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">podList</span><span class="p">,</span><span class="w"> </span><span class="nx">listOpts</span><span class="o">...</span><span class="p">);</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;4. Update the Memcached status with the pod names. Failed to list pods&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Memcached.Namespace&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Namespace</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Memcached.Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="nx">podNames</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">getPodNames</span><span class="p">(</span><span class="nx">podList</span><span class="p">.</span><span class="nx">Items</span><span class="p">)</span><span class="w"></span>
+<span class="nx">log</span><span class="p">.</span><span class="nx">Info</span><span class="p">(</span><span class="s">&quot;4. Update the Memcached status with the pod names. Pod list&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;podNames&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">podNames</span><span class="p">)</span><span class="w"></span>
+<span class="c1">// Update status.Nodes if needed</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">!</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">DeepEqual</span><span class="p">(</span><span class="nx">podNames</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Nodes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Nodes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">podNames</span><span class="w"></span>
+<span class="w">        </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">Status</span><span class="p">().</span><span class="nx">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nx">log</span><span class="p">.</span><span class="nx">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;4. Update the Memcached status with the pod names. Failed to update Memcached status&quot;</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Result</span><span class="p">{},</span><span class="w"> </span><span class="nx">err</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+<span class="nx">log</span><span class="p">.</span><span class="nx">Info</span><span class="p">(</span><span class="s">&quot;4. Update the Memcached status with the pod names. Update memcached.Status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;memcached.Status.Nodes&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Nodes</span><span class="p">)</span><span class="w"></span>
+</code></pre></div>
+</li>
+<li>
+<p>Add <code>getPodNames</code> function.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// getPodNames returns the pod names of the array of pods passed in</span><span class="w"></span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">getPodNames</span><span class="p">(</span><span class="nx">pods</span><span class="w"> </span><span class="p">[]</span><span class="nx">corev1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">podNames</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">pod</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">pods</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nx">podNames</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">podNames</span><span class="p">,</span><span class="w"> </span><span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">podNames</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+</li>
+<li>
+<p>Add necessary <code>RBAC</code>.
+    <div class="highlight"><pre><span></span><code><span class="w"> </span> //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds,verbs=get;list;watch;create;update;patch;delete<span class="w"></span>
+<span class="w"> </span> //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/status,verbs=get;update;patch<span class="w"></span>
+<span class="w"> </span> //+kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/finalizers,verbs=update<span class="w"></span>
+<span class="w"> </span> //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete<span class="w"></span>
+<span class="gi">+ //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;</span><span class="w"></span>
+</code></pre></div></p>
+<p>Run the following command to update <code>config/rbac/role.yaml</code>:</p>
+<div class="highlight"><pre><span></span><code>make manifests
+</code></pre></div>
+</li>
+<li>
+<p>Check</p>
+<ol>
+<li>
+<p>Run the controller.
+    <div class="highlight"><pre><span></span><code>make run
+</code></pre></div></p>
+</li>
+<li>
+<p>Apply a <code>Memcached</code> (CR).
+    <div class="highlight"><pre><span></span><code>kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Check logs.</p>
+<div class="highlight"><pre><span></span><code><span class="m">1</span>.6517855025391748e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.6517855025392709e+09  INFO    controller.memcached    <span class="m">2</span>. Check <span class="k">if</span> the deployment already exists, <span class="k">if</span> not create a new one. Creating a new Deployment   <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;Deployment.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;Deployment.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span><span class="o">}</span>
+<span class="m">1</span>.6517855026461499e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651785502847106e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[]}</span>
+<span class="m">1</span>.651785502847143e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[]}</span>
+<span class="m">1</span>.651785502847202e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651785502847241e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[]}</span>
+<span class="m">1</span>.651785502848351e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[]}</span>
+<span class="m">1</span>.651785502891124e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.6517855028911989e+09  INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[]}</span>
+<span class="m">1</span>.651785502891249e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[]}</span>
+<span class="m">1</span>.651785502954266e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.6517855029543822e+09  INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.651785503020395e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.6517855030236201e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651785503023705e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.6517855030237281e+09  INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.6517855031085582e+09  INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651785503108638e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.651785503108653e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.65178550697348e+09    INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651785506973621e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.6517855069736378e+09  INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.651785507024296e+09   INFO    controller.memcached    <span class="m">1</span>. Fetch the Memcached instance. Memchached resource found      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;memcached.Namespace&quot;</span>: <span class="s2">&quot;default&quot;</span><span class="o">}</span>
+<span class="m">1</span>.651785507024448e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Pod list     <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;podNames&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+<span class="m">1</span>.651785507024466e+09   INFO    controller.memcached    <span class="m">4</span>. Update the Memcached status with the pod names. Update memcached.Status      <span class="o">{</span><span class="s2">&quot;reconciler group&quot;</span>: <span class="s2">&quot;cache.example.com&quot;</span>, <span class="s2">&quot;reconciler kind&quot;</span>: <span class="s2">&quot;Memcached&quot;</span>, <span class="s2">&quot;name&quot;</span>: <span class="s2">&quot;memcached-sample&quot;</span>, <span class="s2">&quot;namespace&quot;</span>: <span class="s2">&quot;default&quot;</span>, <span class="s2">&quot;memcached.Status.Nodes&quot;</span>: <span class="o">[</span><span class="s2">&quot;memcached-sample-5c8cffd96c-wjqsd&quot;</span>, <span class="s2">&quot;memcached-sample-5c8cffd96c-5pthm&quot;</span><span class="o">]}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Check <code>Deployment</code>.</p>
+<div class="highlight"><pre><span></span><code>kubectl get deploy
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+memcached-sample   2/2     2            2           115s
+</code></pre></div>
+</li>
+<li>
+<p>Check <code>status</code> in <code>Memcached</code> object.</p>
+<div class="highlight"><pre><span></span><code>kubectl get Memcached memcached-sample -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status}&#39;</span> <span class="p">|</span> jq
+<span class="o">{</span>
+  <span class="s2">&quot;nodes&quot;</span>: <span class="o">[</span>
+    <span class="s2">&quot;memcached-sample-6c765df685-9drvp&quot;</span>,
+    <span class="s2">&quot;memcached-sample-6c765df685-g7nl8&quot;</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Delete the CR.
+    <div class="highlight"><pre><span></span><code>kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Stop the controller. <code>ctrl-c</code></p>
+</li>
+</ol>
+</li>
+</ol>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../03-define-api/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 3. Define Memcached API (Custom Resource Definition)" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              3. Define Memcached API (Custom Resource Definition)
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../05-write-controller-test/" class="md-footer__link md-footer__link--next" aria-label="Next: 5. Write controller tests" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              5. Write controller tests
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
