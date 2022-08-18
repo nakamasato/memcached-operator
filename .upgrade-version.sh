@@ -8,6 +8,7 @@ echo "======== CLEAN UP ==========="
 KEEP_FILES=(
     mkdocs.yml
     README.md
+    renovate.json
 )
 
 rm -rf api config controllers hack bin bundle 2> /dev/null
@@ -48,7 +49,7 @@ echo "======== CLEAN UP COMPLETED ==========="
 # 0. Update README
 for f in README.md docs/index.md; do
 	gsed -i '/operator-sdk version:/d' $f
-	gsed -i "/operator-sdk version/a \ \ \ \ ${SDK_VERSION}" $f
+	gsed -i "/operator-sdk version/a \ \ \ \ ${SDK_VERSION_FOR_COMMIT}" $f
 	gsed -i '/go version /d' $f
 	gsed -i "/go version/a \ \ \ \ ${GO_VERSION}" $f
 done
@@ -57,11 +58,11 @@ gsed -i "s/go-version:.*/go_version: $GO_VERSION/g" .github/workflows/reviewdog.
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
-rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
+rm -rf docs mkdocs.yml renovate.json # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
 echo "======== INIT PROJECT operator-sdk init completed =========="
 echo "git checkout docs mkdocs.yml"
-git checkout docs mkdocs.yml
+git checkout docs mkdocs.yml renovate.json
 echo "git add & commit"
 git add .
 pre-commit run -a || true
@@ -317,11 +318,12 @@ CONTROLLER_SUITE_TEST_GO_FILE=controllers/suite_test.go
 gsed -i '/^import/a "context"' $CONTROLLER_SUITE_TEST_GO_FILE # add "context" to import
 gsed -i '/^import/a ctrl "sigs.k8s.io/controller-runtime"' $CONTROLLER_SUITE_TEST_GO_FILE # add 'ctrl "sigs.k8s.io/controller-runtime"' to import
 gsed -i '/^import/a "sigs.k8s.io/controller-runtime/pkg/manager"' $CONTROLLER_SUITE_TEST_GO_FILE # add "sigs.k8s.io/controller-runtime/pkg/manager" to import
-gsed -i '/"k8s.io\/client-go\/rest"/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove "k8s.io/client-go/rest" from import
-gsed -i '/^var [a-z]/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove "k8s.io/client-go/rest" from import
+# gsed -i '/"k8s.io\/client-go\/rest"/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove "k8s.io/client-go/rest" from import
+gsed -i '/^var [a-z]/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove vars
 
 cat << EOF > tmpfile
 var (
+       cfg        *rest.Config
        k8sClient  client.Client
        k8sManager manager.Manager
        testEnv    *envtest.Environment
