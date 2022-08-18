@@ -317,11 +317,12 @@ CONTROLLER_SUITE_TEST_GO_FILE=controllers/suite_test.go
 gsed -i '/^import/a "context"' $CONTROLLER_SUITE_TEST_GO_FILE # add "context" to import
 gsed -i '/^import/a ctrl "sigs.k8s.io/controller-runtime"' $CONTROLLER_SUITE_TEST_GO_FILE # add 'ctrl "sigs.k8s.io/controller-runtime"' to import
 gsed -i '/^import/a "sigs.k8s.io/controller-runtime/pkg/manager"' $CONTROLLER_SUITE_TEST_GO_FILE # add "sigs.k8s.io/controller-runtime/pkg/manager" to import
-gsed -i '/"k8s.io\/client-go\/rest"/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove "k8s.io/client-go/rest" from import
-gsed -i '/^var [a-z]/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove "k8s.io/client-go/rest" from import
+# gsed -i '/"k8s.io\/client-go\/rest"/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove "k8s.io/client-go/rest" from import
+gsed -i '/^var [a-z]/d' $CONTROLLER_SUITE_TEST_GO_FILE # remove vars
 
 cat << EOF > tmpfile
 var (
+       cfg        *rest.Config
        k8sClient  client.Client
        k8sManager manager.Manager
        testEnv    *envtest.Environment
