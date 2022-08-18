@@ -8,6 +8,7 @@ echo "======== CLEAN UP ==========="
 KEEP_FILES=(
     mkdocs.yml
     README.md
+    renovate.json
 )
 
 rm -rf api config controllers hack bin bundle 2> /dev/null
