@@ -58,11 +58,11 @@ gsed -i "s/go-version:.*/go_version: $GO_VERSION/g" .github/workflows/reviewdog.
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
-rm -rf docs mkdocs.yml # need to make the dir clean before initializing a project
+rm -rf docs mkdocs.yml renovate.json # need to make the dir clean before initializing a project
 operator-sdk init --domain example.com --repo github.com/example/memcached-operator
 echo "======== INIT PROJECT operator-sdk init completed =========="
 echo "git checkout docs mkdocs.yml"
-git checkout docs mkdocs.yml
+git checkout docs mkdocs.yml renovate.json
 echo "git add & commit"
 git add .
 pre-commit run -a || true
