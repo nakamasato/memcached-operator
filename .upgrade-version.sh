@@ -48,7 +48,7 @@ echo "======== CLEAN UP COMPLETED ==========="
 # 0. Update README
 for f in README.md docs/index.md; do
 	gsed -i '/operator-sdk version:/d' $f
-	gsed -i "/operator-sdk version/a \ \ \ \ ${SDK_VERSION}" $f
+	gsed -i "/operator-sdk version/a \ \ \ \ ${SDK_VERSION_FOR_COMMIT}" $f
 	gsed -i '/go version /d' $f
 	gsed -i "/go version/a \ \ \ \ ${GO_VERSION}" $f
 done
