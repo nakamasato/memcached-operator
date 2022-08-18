@@ -14,14 +14,14 @@ Install the followings:
 
     ```
     operator-sdk version
-    operator-sdk version: "v1.20.1", commit: "1780d438cfd87382d034c72703a80d9073b7b6d8", kubernetes version: "v1.23", go version: "go1.17.10", GOOS: "darwin", GOARCH: "amd64"
+    operator-sdk: v1.21.0, kubernetes: v1.23, go: go1.17.10
     ```
 
 1. `go`
 
     ```
     go version
-    go version go1.17.9 darwin/amd64
+    1.17.9
     ```
 
 You can upgrade the version with the following command:
