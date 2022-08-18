@@ -27,7 +27,7 @@ Install the followings:
 You can upgrade the version with the following command:
 
 ```
-./upgrade-version.sh
+./.upgrade-version.sh
 ```
 
 ## Contents
@@ -44,5 +44,5 @@ You can upgrade the version with the following command:
 Update contents:
 
 ```
-./update-content.sh
+./.update-content.sh
 ```
