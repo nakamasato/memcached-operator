@@ -14,6 +14,9 @@ Install the followings:
 
     ```
     operator-sdk version
+    operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4
+    operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4
+    operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4
     operator-sdk: v1.21.0, kubernetes: v1.23, go: go1.17.10
     ```
 
@@ -21,6 +24,9 @@ Install the followings:
 
     ```
     go version
+    1.18
+    1.18
+    1.19
     1.17.9
     ```
 

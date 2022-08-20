@@ -16,7 +16,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.21.0
+    operators.operatorframework.io/builder: operator-sdk-v1.22.2
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: memcached-operator.v0.0.1
   namespace: placeholder
@@ -132,6 +132,8 @@ spec:
                   requests:
                     cpu: 5m
                     memory: 64Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
               - args:
                 - --health-probe-bind-address=:8081
                 - --metrics-bind-address=127.0.0.1:8080
