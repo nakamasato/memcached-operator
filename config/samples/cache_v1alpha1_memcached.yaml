@@ -3,4 +3,4 @@ kind: Memcached
 metadata:
   name: memcached-sample
 spec:
-  size: 3
+  size: 2
