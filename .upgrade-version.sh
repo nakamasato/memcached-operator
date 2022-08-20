@@ -22,6 +22,7 @@ done
 
 SDK_VERSION_CLI_RESULT=$(operator-sdk version)
 SDK_VERSION_FOR_COMMIT=$(echo ${SDK_VERSION_CLI_RESULT} | sed 's/operator-sdk version: "\([v0-9\.]*\)".*kubernetes version: \"\([v0-9\.]*\)\".* go version: \"\(go[0-9\.]*\)\".*/operator-sdk: \1, kubernetes: \2, go: \3/g')
+SDK_VERSION=$(echo ${SDK_VERSION_CLI_RESULT} | sed 's/operator-sdk version: "\([v0-9\.]*\)".*/\1/g')
 GO_VERSION_CLI_RESULT=$(go version)
 GO_VERSION=$(echo ${GO_VERSION_CLI_RESULT} | sed 's/go version go\([^\s]*\) [^\s]*/\1/')
 echo "SDK_VERSION: $SDK_VERSION_FOR_COMMIT, GO_VERSION: $GO_VERSION_CLI_RESULT"
@@ -50,7 +51,7 @@ echo "======== CLEAN UP COMPLETED ==========="
 
 # 0. Update README
 for f in README.md docs/index.md; do
-	gsed -i "s/\`operator-sdk\`:.*/\`operator-sdk\`: \`${SDK_VERSION_FOR_COMMIT}\`/g" $f
+	gsed -i "s/\`operator-sdk\`:.*/\`operator-sdk\`: \`${SDK_VERSION}\`/g" $f
 	gsed -i "s/\`go\`:.*/\`go\`: \`${GO_VERSION}\`/g" $f
 done
 gsed -i "s/go-version:.*/go-version: $GO_VERSION/g" .github/workflows/test.yml
