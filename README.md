@@ -35,3 +35,9 @@ Update contents:
 ```
 ./.update-content.sh
 ```
+
+## Release
+
+```
+./.publish-release.sh
+```
