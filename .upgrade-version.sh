@@ -48,12 +48,6 @@ else
 fi
 
 echo "======== CLEAN UP COMPLETED ==========="
-
-# 0. Update README
-for f in README.md docs/index.md; do
-	gsed -i "s/\`operator-sdk\`:.*/\`operator-sdk\`: \`${SDK_VERSION}\`/g" $f
-	gsed -i "s/\`go\`:.*/\`go\`: \`${GO_VERSION}\`/g" $f
-done
 gsed -i "s/go-version:.*/go-version: $GO_VERSION/g" .github/workflows/test.yml
 gsed -i "s/go-version:.*/go_version: $GO_VERSION/g" .github/workflows/reviewdog.yml
 
@@ -64,6 +58,13 @@ operator-sdk init --domain example.com --repo github.com/example/memcached-opera
 echo "======== INIT PROJECT operator-sdk init completed =========="
 echo "git checkout docs mkdocs.yml"
 git checkout docs mkdocs.yml renovate.json
+
+echo "update readme and index.md"
+# 0. Update README
+for f in README.md docs/index.md; do
+	gsed -i "s/\`operator-sdk\`:.*/\`operator-sdk\`: \`${SDK_VERSION}\`/g" $f
+	gsed -i "s/\`go\`:.*/\`go\`: \`${GO_VERSION}\`/g" $f
+done
 echo "git add & commit"
 git add .
 pre-commit run -a || true
