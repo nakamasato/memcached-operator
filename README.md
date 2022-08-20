@@ -10,25 +10,8 @@ https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
 
 Install the followings:
 
-1. `operator-sdk`
-
-    ```
-    operator-sdk version
-    operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4
-    operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4
-    operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4
-    operator-sdk: v1.21.0, kubernetes: v1.23, go: go1.17.10
-    ```
-
-1. `go`
-
-    ```
-    go version
-    1.18
-    1.18
-    1.19
-    1.17.9
-    ```
+1. `operator-sdk`: `operator-sdk: v1.22.2, kubernetes: v1.24.1, go: go1.18.4`
+1. `go`:
 
 You can upgrade the version with the following command:
 

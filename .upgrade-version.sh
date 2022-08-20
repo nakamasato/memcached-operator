@@ -51,9 +51,9 @@ echo "======== CLEAN UP COMPLETED ==========="
 # 0. Update README
 for f in README.md docs/index.md; do
 	gsed -i '/operator-sdk version:/d' $f
-	gsed -i "/operator-sdk version/a \ \ \ \ ${SDK_VERSION_FOR_COMMIT}" $f
+	gsed -i "s/\`operator-sdk\`:.*/\`operator-sdk\`: \`${SDK_VERSION_FOR_COMMIT}\`/g" $f
 	gsed -i '/go version /d' $f
-	gsed -i "/go version/a \ \ \ \ ${GO_VERSION}" $f
+	gsed -i "s/\`go\`:.*/\`go\`: \`${GO_VERSION}\`/g" $f
 done
 gsed -i "s/go-version:.*/go-version: $GO_VERSION/g" .github/workflows/test.yml
 gsed -i "s/go-version:.*/go_version: $GO_VERSION/g" .github/workflows/reviewdog.yml
