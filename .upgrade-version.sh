@@ -2,7 +2,7 @@
 
 set -eux
 
-export KUSTOMIZE_VERSION=v4.2.0
+export KUSTOMIZE_VERSION=v4.5.5
 
 # 0. Clean up
 echo "======== CLEAN UP ==========="
