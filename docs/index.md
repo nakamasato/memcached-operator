@@ -18,7 +18,7 @@ What `memcached-operator` does:
 
 Install the followings:
 
-1. `operator-sdk`: `v1.22.2`
+1. `operator-sdk`: `v1.23.0`
 1. `go`: `1.18`
 
 ## Contents
