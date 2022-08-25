@@ -1,0 +1,45 @@
+name: publish-release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  release:
+    if: ${{ github.event.pull_request.merged == true && contains( github.event.pull_request.labels.*.name, 'release') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `publishing a new release (${new Date()})`
+            })
+
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./publish-release.sh
+
+      - name: comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `[draft release ${{ steps.create_release.outputs.id }}](${{ steps.create_release.outputs.html_url }}) has been created. Please publish it when it's ready (${new Date()})`
+            })
