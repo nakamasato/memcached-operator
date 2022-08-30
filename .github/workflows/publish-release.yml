@@ -12,34 +12,39 @@ jobs:
     if: ${{ github.event.pull_request.merged == true && contains( github.event.pull_request.labels.*.name, 'release') }}
     runs-on: ubuntu-latest
     steps:
-      - name: comment
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `publishing a new release (${new Date()})`
-            })
-
       - uses: actions/checkout@v3
         with:
           ref: main
 
-      - name: release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./publish-release.sh
-
-      - name: comment
-        uses: actions/github-script@v6
+      - uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `[draft release ${{ steps.create_release.outputs.id }}](${{ steps.create_release.outputs.html_url }}) has been created. Please publish it when it's ready (${new Date()})`
+              body: `PR has been merged. we're publishing a new release! (${new Date()})`
+            })
+
+      - name: release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          ./.publish-release.sh
+          release_tag=$(gh release view --json tagName | jq -r .tagName)
+          release_url=$(gh release view --json url | jq -r .url)
+          echo "::set-output name=release_tag::$release_tag"
+          echo "::set-output name=release_url::$release_url"
+
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `New release [${{ steps.release.outputs.release_tag }}](${{ steps.release.outputs.release_url }}) has been published! (${new Date()})`
             })
