@@ -3,14 +3,34 @@
 set -eu
 
 RELEASE_MD=release.md
+MAIN_BRANCH=main
+VERSION_REGEX=^v[0-9]+.[0-9]+.[0-9]+$
 
+# Check branch
+current_branch=$(git branch --show-current)
+if [[ "$current_branch" != "$MAIN_BRANCH" ]];then
+    echo "You're not on the main branch. Please run this script on '$MAIN_BRANCH'."
+    exit 1
+fi
+
+# Check latest version format
 latest_version=$(gh release list -L 1 | cut -f1)
+if [[ ! "$latest_version" =~ $VERSION_REGEX ]];then
+    echo "The latest version is not valid format '$latest_version'. '$VERSION_REGEX'"
+    exit 1
+fi
+
+# Make a new version
 patch_version=$(echo $latest_version | sed 's/v[0-9]*\.[0-9]*\.\([0-9]*\)/\1/')
 new_patch_version=$((patch_version+1))
 new_version=$(echo $latest_version | sed "s/v\([0-9]*\)\.\([0-9]*\)\..*/v\1.\2.$new_patch_version/")
 echo "latest_version: $latest_version, new_version: $new_version"
+
+# Create a tag & push it
 git tag -a $new_version -m "release"
-git push origin --tag
+git push origin $new_version
+
+# Create a release with the tag
 gh release create $new_version --generate-notes
 
 # prepare release md
