@@ -38,6 +38,6 @@ Update contents:
 
 ## Release
 
-```
-./.publish-release.sh
-```
+1. Update version with `./.upgrade-version.sh` in your local.
+1. Create a PR with `release` and merge it.
+1. GitHub Actions workflow `publish-release` will automatically make and publish a new release.

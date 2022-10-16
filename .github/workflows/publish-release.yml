@@ -30,8 +30,7 @@ jobs:
       - name: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./publish-release.sh
+        run: ./.publish-release.sh
 
       - name: comment
         uses: actions/github-script@v6
