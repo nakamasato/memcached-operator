@@ -11,9 +11,14 @@ jobs:
   release:
     if: ${{ github.event.pull_request.merged == true && contains( github.event.pull_request.labels.*.name, 'release') }}
     runs-on: ubuntu-latest
+    env:
+      PUBLISH_RELEASE_SCRIPT: ./.publish-release.sh
     steps:
-      - name: comment
-        uses: actions/github-script@v6
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.createComment({
@@ -23,17 +28,23 @@ jobs:
               body: `publishing a new release (${new Date()})`
             })
 
-      - uses: actions/checkout@v3
-        with:
-          ref: main
+      - name: git config
+        run: |
+          git config --global user.email "release@github.com"
+          git config --global user.name "GitHub Actions"
 
       - name: release
+        id: release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./.publish-release.sh
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sh $PUBLISH_RELEASE_SCRIPT
+          release_tag=$(gh release view --json tagName | jq -r .tagName)
+          release_url=$(gh release view --json url | jq -r .url)
+          echo "::set-output name=release_tag::$release_tag"
+          echo "::set-output name=release_url::$release_url"
 
-      - name: comment
-        uses: actions/github-script@v6
+      - uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.createComment({
