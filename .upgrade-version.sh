@@ -49,7 +49,7 @@ fi
 
 echo "======== CLEAN UP COMPLETED ==========="
 gsed -i "s/go-version:.*/go-version: ${GO_VERSION/go/}/g" .github/workflows/test.yml
-gsed -i "s/go-version:.*/go_version: ${GO_VERSION/go/}/g" .github/workflows/reviewdog.yml
+gsed -i "s/go_version:.*/go_version: ${GO_VERSION/go/}/g" .github/workflows/reviewdog.yml
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
