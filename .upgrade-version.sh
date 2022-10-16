@@ -62,8 +62,8 @@ git checkout docs mkdocs.yml renovate.json
 echo "update readme and index.md"
 # 0. Update README
 for f in README.md docs/index.md; do
-	gsed -i "s#[operator-sdk](https://github.com/operator-framework/operator-sdk):.*#[operator-sdk](https://github.com/operator-framework/operator-sdk): [${SDK_VERSION}](https://github.com/operator-framework/operator-sdk/releases/${SDK_VERSION})#g" $f
-	gsed -i "s#[go](https://github.com/golang/go):.*#[go](https://github.com/golang/go): [${GO_VERSION}](https://github.com/golang/go/releases/${GO_VERSION})#g" $f
+	gsed -i "s#\[operator-sdk\](https://github.com/operator-framework/operator-sdk):.*#[operator-sdk](https://github.com/operator-framework/operator-sdk): [${SDK_VERSION}](https://github.com/operator-framework/operator-sdk/releases/${SDK_VERSION})#g" $f
+	gsed -i "s#\[go\](https://github.com/golang/go):.*#[go](https://github.com/golang/go): [${GO_VERSION}](https://github.com/golang/go/releases/${GO_VERSION})#g" $f
 done
 echo "git add & commit"
 git add .
