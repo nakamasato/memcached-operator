@@ -41,5 +41,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `[draft release ${{ steps.create_release.outputs.id }}](${{ steps.create_release.outputs.html_url }}) has been created. Please publish it when it's ready (${new Date()})`
+              body: `[release ${{ steps.create_release.outputs.id }}](${{ steps.create_release.outputs.html_url }}) has been created.`
             })
