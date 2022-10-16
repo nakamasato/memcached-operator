@@ -10,7 +10,7 @@ https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/
 
 Install the followings:
 
-1. [operator-sdk](https://github.com/operator-framework/operator-sdk): [v1.23.0](https://github.com/operator-framework/operator-sdk/releases/v1.23.0)
+1. [operator-sdk](https://github.com/operator-framework/operator-sdk): [v1.24.0](https://github.com/operator-framework/operator-sdk/releases/v1.24.0)
 1. [go](https://github.com/golang/go): [1.18](https://github.com/golang/go/releases/1.18)
 
 You can upgrade the version with the following command:
