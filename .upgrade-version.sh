@@ -24,7 +24,7 @@ SDK_VERSION_CLI_RESULT=$(operator-sdk version)
 SDK_VERSION_FOR_COMMIT=$(echo ${SDK_VERSION_CLI_RESULT} | sed 's/operator-sdk version: "\([v0-9\.]*\)".*kubernetes version: \"\([v0-9\.]*\)\".* go version: \"\(go[0-9\.]*\)\".*/operator-sdk: \1, kubernetes: \2, go: \3/g')
 SDK_VERSION=$(echo ${SDK_VERSION_CLI_RESULT} | sed 's/operator-sdk version: "\([v0-9\.]*\)".*/\1/g')
 GO_VERSION_CLI_RESULT=$(go version)
-GO_VERSION=$(echo ${GO_VERSION_CLI_RESULT} | sed 's/go version go\([^\s]*\) [^\s]*/\1/')
+GO_VERSION=$(echo ${GO_VERSION_CLI_RESULT} | sed 's/go version \(go[^\s]*\) [^\s]*/\1/')
 echo "SDK_VERSION: $SDK_VERSION_FOR_COMMIT, GO_VERSION: $GO_VERSION_CLI_RESULT"
 commit_message="Remove all files to upgrade versions ($SDK_VERSION_FOR_COMMIT)"
 last_commit_message=$(git log -1 --pretty=%B)
@@ -48,8 +48,8 @@ else
 fi
 
 echo "======== CLEAN UP COMPLETED ==========="
-gsed -i "s/go-version:.*/go-version: $GO_VERSION/g" .github/workflows/test.yml
-gsed -i "s/go-version:.*/go_version: $GO_VERSION/g" .github/workflows/reviewdog.yml
+gsed -i "s/go-version:.*/go-version: ${GO_VERSION/go/}/g" .github/workflows/test.yml
+gsed -i "s/go_version:.*/go_version: ${GO_VERSION/go/}/g" .github/workflows/reviewdog.yml
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
@@ -62,8 +62,8 @@ git checkout docs mkdocs.yml renovate.json
 echo "update readme and index.md"
 # 0. Update README
 for f in README.md docs/index.md; do
-	gsed -i "s/\`operator-sdk\`:.*/\`operator-sdk\`: \`${SDK_VERSION}\`/g" $f
-	gsed -i "s/\`go\`:.*/\`go\`: \`${GO_VERSION}\`/g" $f
+	gsed -i "s#\[operator-sdk\](https://github.com/operator-framework/operator-sdk):.*#[operator-sdk](https://github.com/operator-framework/operator-sdk): [${SDK_VERSION}](https://github.com/operator-framework/operator-sdk/releases/${SDK_VERSION})#g" $f
+	gsed -i "s#\[go\](https://github.com/golang/go):.*#[go](https://github.com/golang/go): [${GO_VERSION}](https://github.com/golang/go/releases/${GO_VERSION})#g" $f
 done
 echo "git add & commit"
 git add .
