@@ -13,7 +13,7 @@ KEEP_FILES=(
     renovate.json
 )
 
-rm -rf api config controllers hack bin bundle 2> /dev/null
+rm -rf api config controllers hack bin bundle
 for f in `ls` .dockerignore .gitignore; do
     if [[ ! " ${KEEP_FILES[*]} " =~ " ${f} " ]] && [ -f "$f" ]; then
         rm $f
