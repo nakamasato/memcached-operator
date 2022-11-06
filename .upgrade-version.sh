@@ -358,7 +358,7 @@ cat << EOF > tmpfile
         Expect(err).ToNot(HaveOccurred(), "failed to run ger")
     }()
 EOF
-gsed -i $'/^}, 60)$/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
+gsed -i $'/^})$/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
 gsed -i '/^var _ = AfterSuite(func() {$/a cancel()' $CONTROLLER_SUITE_TEST_GO_FILE # add cancel() after the line "var _ = AfterSuite(func() {"
 rm tmpfile
 cat << EOF > controllers/memcached_controller_test.go
