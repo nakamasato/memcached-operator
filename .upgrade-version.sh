@@ -337,6 +337,7 @@ EOF
 gsed -i $'/^func TestAPIs/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add vars just before TestAPIs
 
 cat << EOF > tmpfile
+
     // Create context with cancel.
     ctx, cancel = context.WithCancel(context.TODO())
 
@@ -358,7 +359,7 @@ cat << EOF > tmpfile
         Expect(err).ToNot(HaveOccurred(), "failed to run ger")
     }()
 EOF
-gsed -i $'/^})$/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
+gsed -i '/^Expect(k8sClient).NotTo(BeNil())$/r tmpfile' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
 gsed -i '/^var _ = AfterSuite(func() {$/a cancel()' $CONTROLLER_SUITE_TEST_GO_FILE # add cancel() after the line "var _ = AfterSuite(func() {"
 rm tmpfile
 cat << EOF > controllers/memcached_controller_test.go
