@@ -13,7 +13,7 @@ KEEP_FILES=(
     renovate.json
 )
 
-rm -rf api config controllers hack bin bundle 2> /dev/null
+rm -rf api config controllers hack bin bundle
 for f in `ls` .dockerignore .gitignore; do
     if [[ ! " ${KEEP_FILES[*]} " =~ " ${f} " ]] && [ -f "$f" ]; then
         rm $f
@@ -337,6 +337,7 @@ EOF
 gsed -i $'/^func TestAPIs/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add vars just before TestAPIs
 
 cat << EOF > tmpfile
+
     // Create context with cancel.
     ctx, cancel = context.WithCancel(context.TODO())
 
@@ -358,7 +359,7 @@ cat << EOF > tmpfile
         Expect(err).ToNot(HaveOccurred(), "failed to run ger")
     }()
 EOF
-gsed -i $'/^}, 60)$/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
+gsed -i '/Expect(k8sClient).NotTo(BeNil())$/r tmpfile' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
 gsed -i '/^var _ = AfterSuite(func() {$/a cancel()' $CONTROLLER_SUITE_TEST_GO_FILE # add cancel() after the line "var _ = AfterSuite(func() {"
 rm tmpfile
 cat << EOF > controllers/memcached_controller_test.go
@@ -370,7 +371,7 @@ import (
 	"time"
 
 	cachev1alpha1 "github.com/example/memcached-operator/api/v1alpha1"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	appsv1 "k8s.io/api/apps/v1"
