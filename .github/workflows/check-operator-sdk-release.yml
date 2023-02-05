@@ -1,0 +1,21 @@
+name: check-operator-sdk-release
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest_version=$(curl --silent "https://api.github.com/repos/operator-framework/operator-sdk/releases" | jq -r '.[].tag_name' | head -n 1)
+          if [ $(grep operator-sdk README.md | grep -c $latest_version) = "1" ]; then
+            echo 'latest'
+          else
+            echo 'new release exists'
+            gh issue create --title "Upgrade operator-sdk to $latest_version" --body "operator-sdk $latest_version has been released." --assignee nakamasato
+          fi
