@@ -1,8 +1,44 @@
 #!/bin/bash
 
-set -eux
+set -eu
 
 export KUSTOMIZE_VERSION=v4.5.5
+
+pre-commit
+get_latest_release() {
+	limit=${2:-5}
+	curl --silent "https://api.github.com/repos/$1/releases" | jq -r '.[].tag_name' | head -n $limit
+}
+
+# operator-sdk version
+if [ $# -eq 0 ]; then
+	echo "specify operator-sdk version"
+	get_latest_release "operator-framework/operator-sdk"
+	exit 1
+fi
+
+if [[ ! "$1" =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]];then
+	echo "operator-sdk version format '$1' is invalid"
+	get_latest_release "operator-framework/operator-sdk"
+	exit 1
+fi
+
+OPERATOR_SDK_VERSION=$1
+echo "operator-sdk version: $OPERATOR_SDK_VERSION"
+
+read -r -p "Are you to upgrade to operator-sdk version $OPERATOR_SDK_VERSION? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY])
+        echo "start upgrading"
+        ;;
+    *)
+        exit 1
+        ;;
+esac
+
+curl -sS -L -o operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk_$(go env GOOS)_$(go env GOARCH)
+chmod +x operator-sdk
+mv operator-sdk /usr/local/bin/
 
 # 0. Clean up
 echo "======== CLEAN UP ==========="
