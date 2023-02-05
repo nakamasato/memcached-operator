@@ -2,7 +2,7 @@ name: check-operator-sdk-release
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 9 * * *' # 18:00 JST
 jobs:
   check:
     runs-on: ubuntu-latest
