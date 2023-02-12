@@ -13,9 +13,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           latest_version=$(curl --silent "https://api.github.com/repos/operator-framework/operator-sdk/releases" | jq -r '.[].tag_name' | head -n 1)
-          if [ $(grep operator-sdk README.md | grep -c $latest_version) = "1" ]; then
-            echo 'latest'
+          current_minor_version=$(grep operator-sdk README.md | gsed 's/.*\(v[0-9]\+.[0-9]\+\).*/\1/')
+          latest_minor_version=$(echo ${latest_version} | gsed 's/.*\(v[0-9]\+.[0-9]\+\).*/\1/')
+          if [ "$current_minor_version" = "$latest_minor_version" ]; then
+            echo "latest (current: $current_minor_version, latest: $latest_version)"
           else
             echo 'new release exists'
-            gh issue create --title "Upgrade operator-sdk to $latest_version" --body "operator-sdk $latest_version has been released." --assignee nakamasato
+            title="Upgrade operator-sdk to $latest_version"
+            issue_cnt=$(gh issue list --search $title --json 'id' | jq length)
+            if [ $issue_cnt -gt 0 ];then
+              echo "issue already exists"
+            else
+              gh issue create --title "$title" --body "operator-sdk $latest_version has been released." --assignee nakamasato
+            fi
           fi
