@@ -20,7 +20,7 @@ jobs:
           else
             echo 'new release exists'
             title="Upgrade operator-sdk to $latest_version"
-            issue_cnt=$(gh issue list --search $title --json 'id' | jq length)
+            issue_cnt=$(gh issue list --search "$title" --json 'id' | jq length)
             if [ $issue_cnt -gt 0 ];then
               echo "issue already exists"
             else
