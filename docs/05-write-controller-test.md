@@ -16,7 +16,7 @@
             "testing"
     +       ctrl "sigs.k8s.io/controller-runtime"
     +
-            . "github.com/onsi/ginkgo"
+            . "github.com/onsi/ginkgo/v2"
             . "github.com/onsi/gomega"
             "k8s.io/client-go/kubernetes/scheme"
     -       "k8s.io/client-go/rest"
@@ -102,7 +102,7 @@ import (
 	"time"
 
 	cachev1alpha1 "github.com/example/memcached-operator/api/v1alpha1"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	appsv1 "k8s.io/api/apps/v1"
