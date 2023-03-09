@@ -12,11 +12,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          latest_version=$(curl --silent "https://api.github.com/repos/operator-framework/operator-sdk/releases" | jq -r '.[].tag_name' | head -n 1)
+          latest_version=$(curl --silent "https://api.github.com/repos/operator-framework/operator-sdk/releases" | jq -r '.[].tag_name' | head -10 | sort -r | head -1)
+          current_version=$(grep operator-sdk README.md | sed 's/.*\(v[0-9]\+.[0-9]\+.[0-9]\+\).*/\1/')
           current_minor_version=$(grep operator-sdk README.md | sed 's/.*\(v[0-9]\+.[0-9]\+\).*/\1/')
           latest_minor_version=$(echo ${latest_version} | sed 's/.*\(v[0-9]\+.[0-9]\+\).*/\1/')
+          echo "current: $current_version, latest: $latest_version"
           if [ "$current_minor_version" = "$latest_minor_version" ]; then
-            echo "latest (current: $current_minor_version, latest: $latest_version)"
+            echo "latest (current: $current_version, latest: $latest_version)"
           else
             echo 'new release exists'
             title="Upgrade operator-sdk to $latest_version"
