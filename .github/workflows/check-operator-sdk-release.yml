@@ -26,6 +26,6 @@ jobs:
             if [ $issue_cnt -gt 0 ];then
               echo "issue already exists"
             else
-              gh issue create --title "$title" --body "operator-sdk $latest_version has been released." --assignee nakamasato
+              gh issue create --title "$title" --body "operator-sdk [$latest_version](https://github.com/operator-framework/operator-sdk/releases/tag/$latest_version) has been released." --assignee nakamasato
             fi
           fi
