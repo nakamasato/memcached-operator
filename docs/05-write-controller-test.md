@@ -42,7 +42,7 @@
     +)
     ```
 
-1. Add the following lines at the end of `BeforeSuite` in `controllers/suite_test.go`.
+1. Add the following lines at the end of `BeforeSuite` in `internal/controller/suite_test.go`.
 
     ```go
         // Create context with cancel.
@@ -79,7 +79,7 @@
 
 ## Write controller's tests
 
-Test cases in `controllers/memcached_controller_test.go`:
+Test cases in `internal/controller/memcached_controller_test.go`:
 
 1. When `Memcached` is created
     1. `Deployment` should be created.
@@ -94,7 +94,7 @@ Test cases in `controllers/memcached_controller_test.go`:
 <details><summary>memcached_controller_test.go</summary>
 
 ```go
-package controllers
+package controller
 
 import (
 	"context"
@@ -345,7 +345,7 @@ GOBIN=/Users/nakamasato/repos/nakamasato/memcached-operator/bin go install sigs.
 KUBEBUILDER_ASSETS="/Users/nakamasato/Library/Application Support/io.kubebuilder.envtest/k8s/1.23.3-darwin-amd64" go test ./... -coverprofile cover.out
 ?       github.com/example/memcached-operator   [no test files]
 ?       github.com/example/memcached-operator/api/v1alpha1      [no test files]
-ok      github.com/example/memcached-operator/controllers       18.284s coverage: 79.3% of statements
+ok      github.com/example/memcached-operator/internal/controller       18.284s coverage: 79.3% of statements
 ```
 
 </details>

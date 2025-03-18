@@ -1,5 +1,5 @@
 /*
-Copyright 2023.
+Copyright 2025.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ type MemcachedStatus struct {
 	Nodes []string `json:"nodes"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // Memcached is the Schema for the memcacheds API
 type Memcached struct {
@@ -48,7 +48,7 @@ type Memcached struct {
 	Status MemcachedStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // MemcachedList contains a list of Memcached
 type MemcachedList struct {

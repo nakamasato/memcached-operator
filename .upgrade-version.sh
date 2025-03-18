@@ -2,7 +2,7 @@
 
 set -eu
 
-export KUSTOMIZE_VERSION=v4.5.5
+export KUSTOMIZE_VERSION=v5.4.1
 
 pre-commit
 get_latest_release() {
@@ -38,7 +38,7 @@ esac
 
 curl -sS -L -o operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk_$(go env GOOS)_$(go env GOARCH)
 chmod +x operator-sdk
-mv operator-sdk /usr/local/bin/
+sudo mv operator-sdk /usr/local/bin/
 
 # 0. Clean up
 echo "======== CLEAN UP ==========="
@@ -50,7 +50,7 @@ KEEP_FILES=(
 )
 
 sudo rm -rf bin
-rm -rf api config controllers hack bin bundle
+rm -rf api config internal cmd hack bin bundle test
 for f in `ls` .dockerignore .gitignore; do
     if [[ ! " ${KEEP_FILES[*]} " =~ " ${f} " ]] && [ -f "$f" ]; then
         rm $f
@@ -85,8 +85,6 @@ else
 fi
 
 echo "======== CLEAN UP COMPLETED ==========="
-gsed -i "s/go-version:.*/go-version: ${GO_VERSION/go/}/g" .github/workflows/test.yml
-gsed -i "s/go_version:.*/go_version: ${GO_VERSION/go/}/g" .github/workflows/reviewdog.yml
 
 # 1. Init a project
 echo "======== INIT PROJECT ==========="
@@ -154,7 +152,7 @@ git commit -am "3. Define Memcached API (CRD)"
 # 4. Implement the controller
 
 ## 4.1. Fetch Memcached instance.
-MEMCACHED_CONTROLLER_GO_FILE=controllers/memcached_controller.go
+MEMCACHED_CONTROLLER_GO_FILE=internal/controller/memcached_controller.go
 
 gsed -i '/^import/a "k8s.io/apimachinery/pkg/api/errors"' $MEMCACHED_CONTROLLER_GO_FILE
 gsed -i '/Reconcile(ctx context.Context, req ctrl.Request) /,/^}/d' $MEMCACHED_CONTROLLER_GO_FILE
@@ -199,7 +197,11 @@ found := &appsv1.Deployment{}
 err = r.Get(ctx, types.NamespacedName{Name: memcached.Name, Namespace: memcached.Namespace}, found)
 if err != nil && errors.IsNotFound(err) {
         // Define a new deployment
-        dep := r.deploymentForMemcached(memcached)
+        dep, err := r.deploymentForMemcached(memcached)
+		if err != nil {
+			log.Error(err, "2. Check if the deployment already exists, if not create a new one. Failed to create new Deployment", "memcached.Namespace", memcached.Namespace, "memcached.Name", memcached.Name)
+			return ctrl.Result{}, err
+		}
         log.Info("2. Check if the deployment already exists, if not create a new one. Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
         err = r.Create(ctx, dep)
         if err != nil {
@@ -219,7 +221,7 @@ gsed -i $'/^\treturn ctrl.Result{}, nil/{e cat tmpfile\n}' $MEMCACHED_CONTROLLER
 cat << EOF > tmpfile
 
 // deploymentForMemcached returns a memcached Deployment object
-func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached) *appsv1.Deployment {
+func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached) (*appsv1.Deployment, error) {
     ls := labelsForMemcached(m.Name)
     replicas := m.Spec.Size
 
@@ -252,8 +254,11 @@ func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached)
             },
     }
     // Set Memcached instance as the owner and controller
-    ctrl.SetControllerReference(m, dep, r.Scheme)
-    return dep
+    err := ctrl.SetControllerReference(m, dep, r.Scheme)
+    if err != nil {
+        return nil, err
+    }
+    return dep, nil
 }
 
 // labelsForMemcached returns the labels for selecting the resources
@@ -336,7 +341,7 @@ cat << EOF > tmpfile
 
 // getPodNames returns the pod names of the array of pods passed in
 func getPodNames(pods []corev1.Pod) []string {
-    var podNames []string
+	podNames := make([]string, 0, len(pods))
     for _, pod := range pods {
             podNames = append(podNames, pod.Name)
     }
@@ -353,7 +358,7 @@ pre-commit run -a || true
 git commit -am "4.4. Implement Controller - Update the Memcached status with the pod names"
 
 # 5. Write a test
-CONTROLLER_SUITE_TEST_GO_FILE=controllers/suite_test.go
+CONTROLLER_SUITE_TEST_GO_FILE=internal/controller/suite_test.go
 gsed -i '/^import/a "context"' $CONTROLLER_SUITE_TEST_GO_FILE # add "context" to import
 gsed -i '/^import/a ctrl "sigs.k8s.io/controller-runtime"' $CONTROLLER_SUITE_TEST_GO_FILE # add 'ctrl "sigs.k8s.io/controller-runtime"' to import
 gsed -i '/^import/a "sigs.k8s.io/controller-runtime/pkg/manager"' $CONTROLLER_SUITE_TEST_GO_FILE # add "sigs.k8s.io/controller-runtime/pkg/manager" to import
@@ -371,7 +376,7 @@ var (
 )
 
 EOF
-gsed -i $'/^func TestAPIs/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add vars just before TestAPIs
+gsed -i $'/^func TestControllers/{e cat tmpfile\n}' $CONTROLLER_SUITE_TEST_GO_FILE # add vars just before TestAPIs
 
 cat << EOF > tmpfile
 
@@ -382,6 +387,7 @@ cat << EOF > tmpfile
     k8sManager, err = ctrl.NewManager(cfg, ctrl.Options{
         Scheme: scheme.Scheme,
     })
+	Expect(err).NotTo(HaveOccurred())
 
     // Initialize \`MemcachedReconciler\` with the manager client schema.
     err = (&MemcachedReconciler{
@@ -399,8 +405,8 @@ EOF
 gsed -i '/Expect(k8sClient).NotTo(BeNil())$/r tmpfile' $CONTROLLER_SUITE_TEST_GO_FILE # add the logic to initialize a manager, register controller and start the manager.
 gsed -i '/^var _ = AfterSuite(func() {$/a cancel()' $CONTROLLER_SUITE_TEST_GO_FILE # add cancel() after the line "var _ = AfterSuite(func() {"
 rm tmpfile
-cat << EOF > controllers/memcached_controller_test.go
-package controllers
+cat << EOF > internal/controller/memcached_controller_test.go
+package controller
 
 import (
 	"context"
@@ -703,5 +709,6 @@ EOF
 IMG=nakamasato/memcached-operator
 make bundle
 git add .
+make lint-fix
 pre-commit run -a || true
 git commit -am "6.2. Deploy with OLM"
