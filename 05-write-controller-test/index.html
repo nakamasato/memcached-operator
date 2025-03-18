@@ -1,0 +1,932 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../04-implement-controller/">
+      
+      
+        <link rel="next" href="../06-deploy-operator/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>5. Write controller tests - Quickstart for Go-based Operators</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-9NTB93RVPJ"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-9NTB93RVPJ",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-9NTB93RVPJ",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#5-write-controller-tests" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Quickstart for Go-based Operators" class="md-header__button md-logo" aria-label="Quickstart for Go-based Operators" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Quickstart for Go-based Operators
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              5. Write controller tests
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Quickstart for Go-based Operators" class="md-nav__button md-logo" aria-label="Quickstart for Go-based Operators" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Quickstart for Go-based Operators
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quickstart for Go-based Operators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-initialize-operator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Create a project
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-create-api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Create API (resource and controller) for Memcached
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-define-api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Define Memcached API (Custom Resource Definition)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-implement-controller/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Implement the controller
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    5. Write controller tests
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    5. Write controller tests
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-suite_testgo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prepare suite_test.go
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-controllers-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Write controller's tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run the tests
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-deploy-operator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    6. Deploy Operator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-ci/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    7. Continuous Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prepare-suite_testgo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prepare suite_test.go
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-controllers-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Write controller's tests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run the tests
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="5-write-controller-tests">5. Write controller tests</h1>
+<h2 id="tools">Tools</h2>
+<ol>
+<li><a href="https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/envtest">envtest</a> provides libraries for integration testing by starting a local control plane. (<code>etcd</code> an <code>kube-apiserver</code>)</li>
+<li><a href="https://pkg.go.dev/github.com/onsi/ginkgo">Ginkgo</a> BDD framework.</li>
+<li><a href="https://pkg.go.dev/github.com/onsi/gomega">Gomega</a> Matcher library for testing.</li>
+</ol>
+<h2 id="prepare-suite_testgo">Prepare <code>suite_test.go</code></h2>
+<ol>
+<li>
+<p>Import necessary packages.
+    <div class="highlight"><pre><span></span><code><span class="w"> </span>import (
+<span class="gi">+       &quot;context&quot;</span>
+<span class="w"> </span>       &quot;path/filepath&quot;
+<span class="w"> </span>       &quot;testing&quot;
+<span class="gi">+       ctrl &quot;sigs.k8s.io/controller-runtime&quot;</span>
+<span class="gi">+</span>
+<span class="w"> </span>       . &quot;github.com/onsi/ginkgo/v2&quot;
+<span class="w"> </span>       . &quot;github.com/onsi/gomega&quot;
+<span class="w"> </span>       &quot;k8s.io/client-go/kubernetes/scheme&quot;
+<span class="gd">-       &quot;k8s.io/client-go/rest&quot;</span>
+<span class="w"> </span>       &quot;sigs.k8s.io/controller-runtime/pkg/client&quot;
+<span class="w"> </span>       &quot;sigs.k8s.io/controller-runtime/pkg/envtest&quot;
+<span class="w"> </span>       &quot;sigs.k8s.io/controller-runtime/pkg/envtest/ter&quot;
+<span class="w"> </span>       logf &quot;sigs.k8s.io/controller-runtime/pkg/log&quot;
+<span class="w"> </span>       &quot;sigs.k8s.io/controller-runtime/pkg/log/zap&quot;
+<span class="gi">+       &quot;sigs.k8s.io/controller-runtime/pkg/manager&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Prepare global variables.
+    <div class="highlight"><pre><span></span><code><span class="gd">-var cfg *rest.Config</span>
+<span class="gd">-var k8sClient client.Client</span>
+<span class="gd">-var testEnv *envtest.Environment</span>
+<span class="gi">+var (</span>
+<span class="gi">+       k8sClient  client.Client</span>
+<span class="gi">+       k8sManager manager.Manager</span>
+<span class="gi">+       testEnv    *envtest.Environment</span>
+<span class="gi">+       ctx        context.Context</span>
+<span class="gi">+       cancel     context.CancelFunc</span>
+<span class="gi">+)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Add the following lines at the end of <code>BeforeSuite</code> in <code>internal/controller/suite_test.go</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="c1">// Create context with cancel.</span>
+<span class="w">    </span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">cancel</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">TODO</span><span class="p">())</span>
+
+<span class="w">    </span><span class="c1">// Register the schema to manager.</span>
+<span class="w">    </span><span class="nx">k8sManager</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">NewManager</span><span class="p">(</span><span class="nx">cfg</span><span class="p">,</span><span class="w"> </span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">Options</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Scheme</span><span class="p">:</span><span class="w"> </span><span class="nx">scheme</span><span class="p">.</span><span class="nx">Scheme</span><span class="p">,</span>
+<span class="w">    </span><span class="p">})</span>
+
+<span class="w">    </span><span class="c1">// Initialize `MemcachedReconciler` with the manager client schema.</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="nx">MemcachedReconciler</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Client</span><span class="p">:</span><span class="w"> </span><span class="nx">k8sManager</span><span class="p">.</span><span class="nx">GetClient</span><span class="p">(),</span>
+<span class="w">        </span><span class="nx">Scheme</span><span class="p">:</span><span class="w"> </span><span class="nx">k8sManager</span><span class="p">.</span><span class="nx">GetScheme</span><span class="p">(),</span>
+<span class="w">    </span><span class="p">}).</span><span class="nx">SetupWithManager</span><span class="p">(</span><span class="nx">k8sManager</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Start the with a goroutine.</span>
+<span class="w">    </span><span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">defer</span><span class="w"> </span><span class="nx">GinkgoRecover</span><span class="p">()</span>
+<span class="w">        </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">k8sManager</span><span class="p">.</span><span class="nx">Start</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">err</span><span class="p">).</span><span class="nx">ToNot</span><span class="p">(</span><span class="nx">HaveOccurred</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;failed to run ger&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}()</span>
+</code></pre></div>
+</li>
+<li>
+<p>Add <code>cancel()</code> to AfterSuite.</p>
+<div class="highlight"><pre><span></span><code><span class="w"> </span>var _ = AfterSuite(func() {
+<span class="gi">+       cancel()</span>
+<span class="w"> </span>       By(&quot;tearing down the test environment&quot;)
+<span class="w"> </span>       err := testEnv.Stop()
+<span class="w"> </span>       Expect(err).NotTo(HaveOccurred())
+</code></pre></div>
+</li>
+</ol>
+<h2 id="write-controllers-tests">Write controller's tests</h2>
+<p>Test cases in <code>internal/controller/memcached_controller_test.go</code>:</p>
+<ol>
+<li>When <code>Memcached</code> is created<ol>
+<li><code>Deployment</code> should be created.</li>
+<li><code>Memcached</code>'s nodes have pods' names.</li>
+</ol>
+</li>
+<li>When <code>Memcached</code>'s <code>size</code> is updated<ol>
+<li><code>Deployment</code>'s <code>replicas</code> should be updated.</li>
+<li><code>Memcached</code>'s nodes have new pods' names.</li>
+</ol>
+</li>
+<li>When <code>Deployment</code> is updated<ol>
+<li>Deleting <code>Deployment</code> -&gt; <code>Deployment</code> is recreated.</li>
+<li>Updating <code>Deployment</code> with <code>replicas = 0</code> -&gt; <code>Deployment</code>'s replicas is updated to the original number.</li>
+</ol>
+</li>
+</ol>
+<details><summary>memcached_controller_test.go</summary>
+
+<div class="highlight"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">controller</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;context&quot;</span>
+<span class="w">    </span><span class="s">&quot;fmt&quot;</span>
+<span class="w">    </span><span class="s">&quot;time&quot;</span>
+
+<span class="w">    </span><span class="nx">cachev1alpha1</span><span class="w"> </span><span class="s">&quot;github.com/example/memcached-operator/api/v1alpha1&quot;</span>
+<span class="w">    </span><span class="p">.</span><span class="w"> </span><span class="s">&quot;github.com/onsi/ginkgo/v2&quot;</span>
+<span class="w">    </span><span class="p">.</span><span class="w"> </span><span class="s">&quot;github.com/onsi/gomega&quot;</span>
+
+<span class="w">    </span><span class="nx">appsv1</span><span class="w"> </span><span class="s">&quot;k8s.io/api/apps/v1&quot;</span>
+<span class="w">    </span><span class="nx">v1</span><span class="w"> </span><span class="s">&quot;k8s.io/api/core/v1&quot;</span>
+<span class="w">    </span><span class="nx">metav1</span><span class="w"> </span><span class="s">&quot;k8s.io/apimachinery/pkg/apis/meta/v1&quot;</span>
+<span class="w">    </span><span class="s">&quot;k8s.io/apimachinery/pkg/types&quot;</span>
+
+<span class="w">    </span><span class="s">&quot;sigs.k8s.io/controller-runtime/pkg/client&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="nx">memcachedApiVersion</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;cache.example.com/v1alphav1&quot;</span>
+<span class="w">    </span><span class="nx">memcachedKind</span><span class="w">       </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;Memcached&quot;</span>
+<span class="w">    </span><span class="nx">memcachedName</span><span class="w">       </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;sample&quot;</span>
+<span class="w">    </span><span class="nx">memcachedNamespace</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;default&quot;</span>
+<span class="w">    </span><span class="nx">memcachedStartSize</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">int32</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">memcachedUpdateSize</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">int32</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">timeout</span><span class="w">             </span><span class="p">=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">10</span>
+<span class="w">    </span><span class="nx">interval</span><span class="w">            </span><span class="p">=</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">250</span>
+<span class="p">)</span>
+
+<span class="kd">var</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">Describe</span><span class="p">(</span><span class="s">&quot;Memcached controller&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nx">lookUpKey</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="nx">memcachedName</span><span class="p">,</span><span class="w"> </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">memcachedNamespace</span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">AfterEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Delete Memcached</span>
+<span class="w">        </span><span class="nx">deleteMemcached</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">// Delete all Pods</span>
+<span class="w">        </span><span class="nx">deleteAllPods</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+<span class="w">    </span><span class="p">})</span>
+
+<span class="w">    </span><span class="nx">Context</span><span class="p">(</span><span class="s">&quot;When creating Memcached&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Create Memcached</span>
+<span class="w">            </span><span class="nx">createMemcached</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedStartSize</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">        </span><span class="nx">It</span><span class="p">(</span><span class="s">&quot;Should create Deployment with the specified size and memcached image&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Deployment is created</span>
+<span class="w">            </span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
+<span class="w">            </span><span class="nx">Eventually</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)</span>
+<span class="w">            </span><span class="p">},</span><span class="w"> </span><span class="nx">timeout</span><span class="p">,</span><span class="w"> </span><span class="nx">interval</span><span class="p">).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="p">).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">memcachedStartSize</span><span class="p">))</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Template</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Containers</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">Image</span><span class="p">).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="s">&quot;memcached:1.4.36-alpine&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="c1">// https://github.com/kubernetes-sigs/controller-runtime/blob/master/pkg/controller/controllerutil/controllerutil_test.go</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">OwnerReferences</span><span class="p">).</span><span class="nx">ShouldNot</span><span class="p">(</span><span class="nx">BeEmpty</span><span class="p">())</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">        </span><span class="nx">It</span><span class="p">(</span><span class="s">&quot;Should have pods name in Memcached Node&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">checkIfDeploymentExists</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">)</span>
+
+<span class="w">            </span><span class="nx">By</span><span class="p">(</span><span class="s">&quot;By creating Pods with labels&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">podNames</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">createPods</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="nx">memcachedStartSize</span><span class="p">))</span>
+
+<span class="w">            </span><span class="nx">updateMemcacheSize</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedUpdateSize</span><span class="p">)</span><span class="w"> </span><span class="c1">// just to trigger reconcile</span>
+
+<span class="w">            </span><span class="nx">checkMemcachedStatusNodes</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">podNames</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">    </span><span class="p">})</span>
+
+<span class="w">    </span><span class="nx">Context</span><span class="p">(</span><span class="s">&quot;When updating Memcached&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Create Memcached</span>
+<span class="w">            </span><span class="nx">createMemcached</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedStartSize</span><span class="p">)</span>
+<span class="w">            </span><span class="c1">// Deployment is ready</span>
+<span class="w">            </span><span class="nx">checkDeploymentReplicas</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedStartSize</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+
+<span class="w">        </span><span class="nx">It</span><span class="p">(</span><span class="s">&quot;Should update Deployment replicas&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">By</span><span class="p">(</span><span class="s">&quot;Changing Memcached size&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">updateMemcacheSize</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedUpdateSize</span><span class="p">)</span>
+
+<span class="w">            </span><span class="nx">checkDeploymentReplicas</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedUpdateSize</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+
+<span class="w">        </span><span class="nx">It</span><span class="p">(</span><span class="s">&quot;Should update the Memcached status with the pod names&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">By</span><span class="p">(</span><span class="s">&quot;Changing Memcached size&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">updateMemcacheSize</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedUpdateSize</span><span class="p">)</span>
+
+<span class="w">            </span><span class="nx">podNames</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">createPods</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="nx">memcachedUpdateSize</span><span class="p">))</span>
+<span class="w">            </span><span class="nx">checkMemcachedStatusNodes</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">podNames</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="nx">Context</span><span class="p">(</span><span class="s">&quot;When changing Deployment&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">BeforeEach</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Create Memcached</span>
+<span class="w">            </span><span class="nx">createMemcached</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedStartSize</span><span class="p">)</span>
+<span class="w">            </span><span class="c1">// Deployment is ready</span>
+<span class="w">            </span><span class="nx">checkDeploymentReplicas</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedStartSize</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+
+<span class="w">        </span><span class="nx">It</span><span class="p">(</span><span class="s">&quot;Should check if the deployment already exists, if not create a new one&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">By</span><span class="p">(</span><span class="s">&quot;Deleting Deployment&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Delete</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+
+<span class="w">            </span><span class="c1">// Deployment will be recreated by the controller</span>
+<span class="w">            </span><span class="nx">checkIfDeploymentExists</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+
+<span class="w">        </span><span class="nx">It</span><span class="p">(</span><span class="s">&quot;Should ensure the deployment size is the same as the spec&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">By</span><span class="p">(</span><span class="s">&quot;Changing Deployment replicas&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="w">            </span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">            </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+
+<span class="w">            </span><span class="c1">// replicas will be updated back to the original one by the controller</span>
+<span class="w">            </span><span class="nx">checkDeploymentReplicas</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcachedStartSize</span><span class="p">)</span>
+<span class="w">        </span><span class="p">})</span>
+<span class="w">    </span><span class="p">})</span>
+
+<span class="w">    </span><span class="c1">// Deployment is expected to be deleted when Memcached is deleted.</span>
+<span class="w">    </span><span class="c1">// As it&#39;s garbage collector&#39;s responsibility, which is not part of envtest, we don&#39;t test it here.</span>
+<span class="p">})</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">checkIfDeploymentExists</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
+<span class="w">    </span><span class="nx">Eventually</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="kt">error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="nx">timeout</span><span class="p">,</span><span class="w"> </span><span class="nx">interval</span><span class="p">).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">checkDeploymentReplicas</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span><span class="w"> </span><span class="nx">expectedSize</span><span class="w"> </span><span class="kt">int32</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Eventually</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">(</span><span class="kt">int32</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">deployment</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">Deployment</span><span class="p">{}</span>
+<span class="w">        </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">deployment</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">int32</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">*</span><span class="nx">deployment</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Replicas</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="nx">timeout</span><span class="p">,</span><span class="w"> </span><span class="nx">interval</span><span class="p">).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Equal</span><span class="p">(</span><span class="nx">expectedSize</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">newMemcached</span><span class="p">(</span><span class="nx">size</span><span class="w"> </span><span class="kt">int32</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">TypeMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">APIVersion</span><span class="p">:</span><span class="w"> </span><span class="nx">memcachedApiVersion</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">Kind</span><span class="p">:</span><span class="w">       </span><span class="nx">memcachedKind</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nx">ObjectMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">Name</span><span class="p">:</span><span class="w">      </span><span class="nx">memcachedName</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">memcachedNamespace</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nx">Spec</span><span class="p">:</span><span class="w"> </span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">MemcachedSpec</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">Size</span><span class="p">:</span><span class="w"> </span><span class="nx">size</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">createMemcached</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">size</span><span class="w"> </span><span class="kt">int32</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">memcached</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">newMemcached</span><span class="p">(</span><span class="nx">size</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Create</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">updateMemcacheSize</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span><span class="w"> </span><span class="nx">size</span><span class="w"> </span><span class="kt">int32</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">memcached</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="p">{}</span>
+<span class="w">    </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="w">    </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">Size</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">size</span>
+<span class="w">    </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Update</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">deleteMemcached</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">memcached</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="p">{}</span>
+<span class="w">    </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="w">    </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Delete</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">checkMemcachedStatusNodes</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">NamespacedName</span><span class="p">,</span><span class="w"> </span><span class="nx">podNames</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">memcached</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">cachev1alpha1</span><span class="p">.</span><span class="nx">Memcached</span><span class="p">{}</span>
+<span class="w">    </span><span class="nx">Eventually</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Get</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">lookUpKey</span><span class="p">,</span><span class="w"> </span><span class="nx">memcached</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">memcached</span><span class="p">.</span><span class="nx">Status</span><span class="p">.</span><span class="nx">Nodes</span><span class="p">,</span><span class="w"> </span><span class="kc">nil</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="nx">timeout</span><span class="p">,</span><span class="w"> </span><span class="nx">interval</span><span class="p">).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">ConsistOf</span><span class="p">(</span><span class="nx">podNames</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">createPods</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">num</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">podNames</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">{}</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="p">&lt;</span><span class="w"> </span><span class="nx">num</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">podName</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;pod-%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">podNames</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">append</span><span class="p">(</span><span class="nx">podNames</span><span class="p">,</span><span class="w"> </span><span class="nx">podName</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">pod</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">newPod</span><span class="p">(</span><span class="nx">podName</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">Create</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="nx">pod</span><span class="p">)).</span><span class="nx">Should</span><span class="p">(</span><span class="nx">Succeed</span><span class="p">())</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">podNames</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">deleteAllPods</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">k8sClient</span><span class="p">.</span><span class="nx">DeleteAllOf</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{},</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">InNamespace</span><span class="p">(</span><span class="nx">memcachedNamespace</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">Expect</span><span class="p">(</span><span class="nx">err</span><span class="p">).</span><span class="nx">NotTo</span><span class="p">(</span><span class="nx">HaveOccurred</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">newPod</span><span class="p">(</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Pod</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">TypeMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">Kind</span><span class="p">:</span><span class="w">       </span><span class="s">&quot;Pod&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">APIVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;v1&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nx">ObjectMeta</span><span class="p">:</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">Name</span><span class="p">:</span><span class="w">      </span><span class="nx">name</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">Namespace</span><span class="p">:</span><span class="w"> </span><span class="nx">memcachedNamespace</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">Labels</span><span class="p">:</span><span class="w"> </span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span>
+<span class="w">                </span><span class="s">&quot;app&quot;</span><span class="p">:</span><span class="w">          </span><span class="s">&quot;memcached&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;memcached_cr&quot;</span><span class="p">:</span><span class="w"> </span><span class="nx">memcachedName</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nx">Spec</span><span class="p">:</span><span class="w"> </span><span class="nx">v1</span><span class="p">.</span><span class="nx">PodSpec</span><span class="p">{</span>
+<span class="w">            </span><span class="nx">Containers</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="nx">v1</span><span class="p">.</span><span class="nx">Container</span><span class="p">{</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nx">Name</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;memcached&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nx">Image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;memcached&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nx">Status</span><span class="p">:</span><span class="w"> </span><span class="nx">v1</span><span class="p">.</span><span class="nx">PodStatus</span><span class="p">{},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+</details>
+
+<h2 id="run-the-tests">Run the tests</h2>
+<div class="highlight"><pre><span></span><code>make test
+</code></pre></div>
+<details>
+
+<div class="highlight"><pre><span></span><code>/Users/nakamasato/repos/nakamasato/memcached-operator/bin/controller-gen rbac:roleName=manager-role crd webhook paths=&quot;./...&quot; output:crd:artifacts:config=config/crd/bases
+/Users/nakamasato/repos/nakamasato/memcached-operator/bin/controller-gen object:headerFile=&quot;hack/boilerplate.go.txt&quot; paths=&quot;./...&quot;
+go fmt ./...
+go vet ./...
+GOBIN=/Users/nakamasato/repos/nakamasato/memcached-operator/bin go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+KUBEBUILDER_ASSETS=&quot;/Users/nakamasato/Library/Application Support/io.kubebuilder.envtest/k8s/1.23.3-darwin-amd64&quot; go test ./... -coverprofile cover.out
+?       github.com/example/memcached-operator   [no test files]
+?       github.com/example/memcached-operator/api/v1alpha1      [no test files]
+ok      github.com/example/memcached-operator/internal/controller       18.284s coverage: 79.3% of statements
+</code></pre></div>
+
+</details>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

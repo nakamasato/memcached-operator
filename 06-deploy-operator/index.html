@@ -1,0 +1,819 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../05-write-controller-test/">
+      
+      
+        <link rel="next" href="../07-ci/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>6. Deploy Operator - Quickstart for Go-based Operators</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-9NTB93RVPJ"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-9NTB93RVPJ",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-9NTB93RVPJ",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#6-deploy-operator" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Quickstart for Go-based Operators" class="md-header__button md-logo" aria-label="Quickstart for Go-based Operators" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Quickstart for Go-based Operators
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              6. Deploy Operator
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Quickstart for Go-based Operators" class="md-nav__button md-logo" aria-label="Quickstart for Go-based Operators" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Quickstart for Go-based Operators
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quickstart for Go-based Operators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-initialize-operator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    1. Create a project
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-create-api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    2. Create API (resource and controller) for Memcached
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-define-api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    3. Define Memcached API (Custom Resource Definition)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-implement-controller/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    4. Implement the controller
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-write-controller-test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    5. Write controller tests
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    6. Deploy Operator
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    6. Deploy Operator
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#61-deploy-with-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Deploy with Deployment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#62-deploy-with-olm" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2. Deploy with OLM
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-ci/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    7. Continuous Integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#61-deploy-with-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Deploy with Deployment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#62-deploy-with-olm" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2. Deploy with OLM
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="6-deploy-operator">6. Deploy Operator</h1>
+<h2 id="61-deploy-with-deployment">6.1 Deploy with <code>Deployment</code></h2>
+<ol>
+<li>
+<p>Build docker image and push it to registry.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">OPERATOR_IMG</span><span class="o">=</span><span class="s2">&quot;&lt;image registry name&gt;:v0.0.1&quot;</span><span class="w"> </span><span class="c1"># e.g. nakamasato/memcached-operator</span>
+make<span class="w"> </span>docker-build<span class="w"> </span>docker-push<span class="w"> </span><span class="nv">IMG</span><span class="o">=</span><span class="nv">$OPERATOR_IMG</span>
+</code></pre></div>
+</li>
+<li>
+<p>Deploy operator.</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>deploy<span class="w"> </span><span class="nv">IMG</span><span class="o">=</span><span class="nv">$OPERATOR_IMG</span>
+</code></pre></div>
+</li>
+<li>
+<p>Add CR.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cache.example.com/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Memcached</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">memcached-sample</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</code></pre></div>
+</li>
+<li>
+<p>Check controller's log.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>logs<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>po<span class="w"> </span>-n<span class="w"> </span>memcached-operator-system<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>memcached-operator-controller-manager<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span><span class="w"> </span>-c<span class="w"> </span>manager<span class="w"> </span>-n<span class="w"> </span>memcached-operator-system<span class="w"> </span>-f
+</code></pre></div>
+</li>
+<li>
+<p>Delete CR.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>delete<span class="w"> </span>-f<span class="w"> </span>config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div>
+</li>
+<li>
+<p>Uninstall operator.</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>undeploy
+</code></pre></div>
+</li>
+</ol>
+<h2 id="62-deploy-with-olm">6.2. Deploy with OLM</h2>
+<p>Version:</p>
+<ul>
+<li>operator-lifecycle-manager: <a href="https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/v0.21.1">v0.21.1</a></li>
+</ul>
+<p>Steps:</p>
+<ol>
+<li>
+<p>Build and push the latest docker image.</p>
+<p>In this example, I'm using my own docker hub registry: <a href="https://hub.docker.com/repository/docker/nakamasato/memcached-operator">nakamasato/memcached-operator</a></p>
+<div class="highlight"><pre><span></span><code>IMG=nakamasato/memcached-operator:v0.0.1
+IMG=$IMG make docker-build docker-push
+</code></pre></div>
+</li>
+<li>
+<p>Install OLM into your Kubernetes cluster.</p>
+<div class="highlight"><pre><span></span><code>operator-sdk olm install
+</code></pre></div>
+<p><details><summary>result</summary></p>
+<div class="highlight"><pre><span></span><code>INFO[0000] Fetching CRDs for version &quot;latest&quot;
+INFO[0000] Fetching resources for resolved version &quot;latest&quot;
+I0506 06:39:53.809752   84199 request.go:665] Waited for 1.042948805s due to client-side throttling, not priority and fairness, request: GET:https://127.0.0.1:61181/apis/node.k8s.io/v1beta1?timeout=32s
+INFO[0010] Creating CRDs and resources
+INFO[0010]   Creating CustomResourceDefinition &quot;catalogsources.operators.coreos.com&quot;
+INFO[0011]   Creating CustomResourceDefinition &quot;clusterserviceversions.operators.coreos.com&quot;
+INFO[0011]   Creating CustomResourceDefinition &quot;installplans.operators.coreos.com&quot;
+INFO[0011]   Creating CustomResourceDefinition &quot;olmconfigs.operators.coreos.com&quot;
+INFO[0011]   Creating CustomResourceDefinition &quot;operatorconditions.operators.coreos.com&quot;
+INFO[0011]   Creating CustomResourceDefinition &quot;operatorgroups.operators.coreos.com&quot;
+INFO[0012]   Creating CustomResourceDefinition &quot;operators.operators.coreos.com&quot;
+INFO[0012]   Creating CustomResourceDefinition &quot;subscriptions.operators.coreos.com&quot;
+INFO[0012]   Creating Namespace &quot;olm&quot;
+INFO[0012]   Creating Namespace &quot;operators&quot;
+INFO[0012]   Creating ServiceAccount &quot;olm/olm-operator-serviceaccount&quot;
+INFO[0012]   Creating ClusterRole &quot;system:controller:operator-lifecycle-manager&quot;
+INFO[0012]   Creating ClusterRoleBinding &quot;olm-operator-binding-olm&quot;
+INFO[0013]   Creating OLMConfig &quot;cluster&quot;
+I0506 06:40:03.832612   84199 request.go:665] Waited for 1.206894542s due to client-side throttling, not priority and fairness, request: GET:https://127.0.0.1:61181/apis/scheduling.k8s.io/v1?timeout=32s
+INFO[0015]   Creating Deployment &quot;olm/olm-operator&quot;
+INFO[0015]   Creating Deployment &quot;olm/catalog-operator&quot;
+INFO[0015]   Creating ClusterRole &quot;aggregate-olm-edit&quot;
+INFO[0015]   Creating ClusterRole &quot;aggregate-olm-view&quot;
+INFO[0015]   Creating OperatorGroup &quot;operators/global-operators&quot;
+INFO[0015]   Creating OperatorGroup &quot;olm/olm-operators&quot;
+INFO[0016]   Creating ClusterServiceVersion &quot;olm/packageserver&quot;
+INFO[0016]   Creating CatalogSource &quot;olm/operatorhubio-catalog&quot;
+INFO[0016] Waiting for deployment/olm-operator rollout to complete
+INFO[0016]   Waiting for Deployment &quot;olm/olm-operator&quot; to rollout: 0 of 1 updated replicas are available
+INFO[0048]   Deployment &quot;olm/olm-operator&quot; successfully rolled out
+INFO[0048] Waiting for deployment/catalog-operator rollout to complete
+INFO[0048]   Deployment &quot;olm/catalog-operator&quot; successfully rolled out
+INFO[0048] Waiting for deployment/packageserver rollout to complete
+INFO[0048]   Waiting for Deployment &quot;olm/packageserver&quot; to rollout: 0 of 2 updated replicas are available
+INFO[0068]   Deployment &quot;olm/packageserver&quot; successfully rolled out
+INFO[0069] Successfully installed OLM version &quot;latest&quot;
+
+NAME                                            NAMESPACE    KIND                        STATUS
+catalogsources.operators.coreos.com                          CustomResourceDefinition    Installed
+clusterserviceversions.operators.coreos.com                  CustomResourceDefinition    Installed
+installplans.operators.coreos.com                            CustomResourceDefinition    Installed
+olmconfigs.operators.coreos.com                              CustomResourceDefinition    Installed
+operatorconditions.operators.coreos.com                      CustomResourceDefinition    Installed
+operatorgroups.operators.coreos.com                          CustomResourceDefinition    Installed
+operators.operators.coreos.com                               CustomResourceDefinition    Installed
+subscriptions.operators.coreos.com                           CustomResourceDefinition    Installed
+olm                                                          Namespace                   Installed
+operators                                                    Namespace                   Installed
+olm-operator-serviceaccount                     olm          ServiceAccount              Installed
+system:controller:operator-lifecycle-manager                 ClusterRole                 Installed
+olm-operator-binding-olm                                     ClusterRoleBinding          Installed
+cluster                                                      OLMConfig                   Installed
+olm-operator                                    olm          Deployment                  Installed
+catalog-operator                                olm          Deployment                  Installed
+aggregate-olm-edit                                           ClusterRole                 Installed
+aggregate-olm-view                                           ClusterRole                 Installed
+global-operators                                operators    OperatorGroup               Installed
+olm-operators                                   olm          OperatorGroup               Installed
+packageserver                                   olm          ClusterServiceVersion       Installed
+operatorhubio-catalog                           olm          CatalogSource               Installed
+</code></pre></div>
+</details>
+<p>Check:</p>
+<div class="highlight"><pre><span></span><code>kubectl get po -n olm
+NAME                                READY   STATUS    RESTARTS      AGE
+catalog-operator-7bfdc86d78-ftsqp   1/1     Running   0             3m32s
+olm-operator-745fb9c45-xn9jq        1/1     Running   0             3m32s
+operatorhubio-catalog-5spvd         1/1     Running   3 (50s ago)   3m1s
+packageserver-b9659cb48-cmlfn       1/1     Running   0             2m59s
+packageserver-b9659cb48-swpcm       1/1     Running   0             2m59s
+</code></pre></div>
+</li>
+<li>
+<p>Bundle your operator with <code>BUNDLE_IMG</code>.</p>
+<div class="highlight"><pre><span></span><code>IMG=$IMG make bundle
+</code></pre></div>
+<details>
+<div class="highlight"><pre><span></span><code>/Users/nakamasato/repos/nakamasato/memcached-operator/bin/controller-gen rbac:roleName=manager-role crd webhook paths=&quot;./...&quot; output:crd:artifacts:config=config/crd/bases
+operator-sdk generate kustomize manifests -q
+cd config/manager &amp;&amp; /Users/nakamasato/repos/nakamasato/memcached-operator/bin/kustomize edit set image controller=nakamasato/memcached-operator:v0.0.1
+/Users/nakamasato/repos/nakamasato/memcached-operator/bin/kustomize build config/manifests | operator-sdk generate bundle -q --overwrite --version 0.0.1
+INFO[0001] Creating bundle/metadata/annotations.yaml
+INFO[0001] Creating bundle.Dockerfile
+INFO[0001] Bundle metadata generated suceessfully
+operator-sdk bundle validate ./bundle
+INFO[0000] All validation tests have completed successfully
+</code></pre></div>
+</details>
+<p>Use another repository for bundle: <a href="https://hub.docker.com/repository/docker/nakamasato/memcached-operator-bundle">nakamasato/memcached-operator-bundle</a></p>
+<div class="highlight"><pre><span></span><code>make bundle-build bundle-push BUNDLE_IMG=docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+</code></pre></div>
+<p><details><summary>result</summary></p>
+<div class="highlight"><pre><span></span><code>make bundle-build bundle-push BUNDLE_IMG=docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+docker build -f bundle.Dockerfile -t docker.io/nakamasato/memcached-operator-bundle:v0.0.1 .
+[+] Building 0.5s (7/7) FINISHED
+ =&gt; [internal] load build definition from bundle.Dockerfile                                             0.1s
+ =&gt; =&gt; transferring dockerfile: 44B                                                                     0.0s
+ =&gt; [internal] load .dockerignore                                                                       0.0s
+ =&gt; =&gt; transferring context: 35B                                                                        0.0s
+ =&gt; [internal] load build context                                                                       0.1s
+ =&gt; =&gt; transferring context: 741B                                                                       0.0s
+ =&gt; CACHED [1/3] COPY bundle/manifests /manifests/                                                      0.0s
+ =&gt; CACHED [2/3] COPY bundle/metadata /metadata/                                                        0.0s
+ =&gt; CACHED [3/3] COPY bundle/tests/scorecard /tests/scorecard/                                          0.0s
+ =&gt; exporting to image                                                                                  0.0s
+ =&gt; =&gt; exporting layers                                                                                 0.0s
+ =&gt; =&gt; writing image sha256:7f35a82eb086d5476d518c14d3b467d628032d74a083cd8cb2991ccab57e0707            0.0s
+ =&gt; =&gt; naming to docker.io/nakamasato/memcached-operator-bundle:v0.0.1                                  0.0s
+
+Use &#39;docker scan&#39; to run Snyk tests against images to find vulnerabilities and learn how to fix them
+/Library/Developer/CommandLineTools/usr/bin/make docker-push IMG=docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+docker push docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+The push refers to repository [docker.io/nakamasato/memcached-operator-bundle]
+018b84f0bc42: Mounted from nakamasato/memcached-operator-bundle-v0.0.1
+1fe6adf17d6a: Mounted from nakamasato/memcached-operator-bundle-v0.0.1
+3e3e3b47b77a: Mounted from nakamasato/memcached-operator-bundle-v0.0.1
+v0.0.1: digest: sha256:22b7a22279a5f45d9b4eae27ed5e537ae5aeb53ed4ac6572108ba73cf22a8a7a size: 939
+</code></pre></div>
+</details>
+</li>
+<li>
+<p>Install <code>memcached-operator</code> with OLM.</p>
+<div class="highlight"><pre><span></span><code>operator-sdk run bundle docker.io/nakamasato/memcached-operator-bundle:v0.0.1
+</code></pre></div>
+<p><details><summary>result</summary></p>
+<div class="highlight"><pre><span></span><code>INFO[0023] Successfully created registry pod: docker-io-nakamasato-memcached-operator-bundle-v0-0-1
+INFO[0023] Created CatalogSource: memcached-operator-catalog
+INFO[0023] OperatorGroup &quot;operator-sdk-og&quot; created
+INFO[0023] Created Subscription: memcached-operator-v0-0-1-sub
+INFO[0032] Approved InstallPlan install-wq7t2 for the Subscription: memcached-operator-v0-0-1-sub
+INFO[0032] Waiting for ClusterServiceVersion &quot;default/memcached-operator.v0.0.1&quot; to reach &#39;Succeeded&#39; phase
+INFO[0032]   Waiting for ClusterServiceVersion &quot;default/memcached-operator.v0.0.1&quot; to appear
+INFO[0066]   Found ClusterServiceVersion &quot;default/memcached-operator.v0.0.1&quot; phase: Installing
+INFO[0097]   Found ClusterServiceVersion &quot;default/memcached-operator.v0.0.1&quot; phase: Succeeded
+INFO[0097] OLM has successfully installed &quot;memcached-operator.v0.0.1&quot;
+</code></pre></div>
+</details>
+<p>Check Pods:</p>
+<div class="highlight"><pre><span></span><code>kubectl get po
+NAME                                                              READY   STATUS      RESTARTS   AGE
+d71c67e797ef5c5fbbaed16811c5e6052504e58d7c9b2b6e9c19bee2699brks   0/1     Completed   0          112s
+docker-io-nakamasato-memcached-operator-bundle-v0-0-1             1/1     Running     0          2m6s
+memcached-operator-controller-manager-c9457868d-s7m2w             2/2     Running     0          78s
+</code></pre></div>
+</li>
+<li>
+<p>Create Custom Resource.</p>
+<div class="highlight"><pre><span></span><code>kubectl apply -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div>
+<p>Check:
+<div class="highlight"><pre><span></span><code>kubectl get memcached,deploy memcached-sample
+NAME                                           AGE
+memcached.cache.example.com/memcached-sample   40s
+
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/memcached-sample   2/2     2            2           40s
+</code></pre></div></p>
+</li>
+<li>
+<p>Clean up the custom resource.</p>
+<div class="highlight"><pre><span></span><code>kubectl delete -f config/samples/cache_v1alpha1_memcached.yaml
+</code></pre></div>
+</li>
+<li>
+<p>Uninstall <code>memcached-operator</code>.</p>
+<div class="highlight"><pre><span></span><code>operator-sdk cleanup memcached-operator
+</code></pre></div>
+</li>
+<li>
+<p>Uninstall OLM.</p>
+<div class="highlight"><pre><span></span><code>operator-sdk olm uninstall
+</code></pre></div>
+<p><details><summary>result</summary></p>
+<div class="highlight"><pre><span></span><code>INFO[0000] Fetching CRDs for version &quot;v0.21.1&quot;
+INFO[0000] Fetching resources for resolved version &quot;v0.21.1&quot;
+INFO[0003] Uninstalling resources for version &quot;v0.21.1&quot;
+INFO[0003]   Deleting CustomResourceDefinition &quot;catalogsources.operators.coreos.com&quot;
+INFO[0003]   Deleting CustomResourceDefinition &quot;clusterserviceversions.operators.coreos.com&quot;
+INFO[0011]   Deleting CustomResourceDefinition &quot;installplans.operators.coreos.com&quot;
+INFO[0018]   Deleting CustomResourceDefinition &quot;olmconfigs.operators.coreos.com&quot;
+INFO[0019]   Deleting CustomResourceDefinition &quot;operatorconditions.operators.coreos.com&quot;
+INFO[0019]   Deleting CustomResourceDefinition &quot;operatorgroups.operators.coreos.com&quot;
+INFO[0023]   Deleting CustomResourceDefinition &quot;operators.operators.coreos.com&quot;
+INFO[0024]   Deleting CustomResourceDefinition &quot;subscriptions.operators.coreos.com&quot;
+INFO[0024]   Deleting Namespace &quot;olm&quot;
+INFO[0037]   Deleting Namespace &quot;operators&quot;
+INFO[0043]   Deleting ServiceAccount &quot;olm/olm-operator-serviceaccount&quot;
+INFO[0043]     ServiceAccount &quot;olm/olm-operator-serviceaccount&quot; does not exist
+INFO[0043]   Deleting ClusterRole &quot;system:controller:operator-lifecycle-manager&quot;
+INFO[0043]   Deleting ClusterRoleBinding &quot;olm-operator-binding-olm&quot;
+INFO[0043]   Deleting OLMConfig &quot;cluster&quot;
+INFO[0043]     OLMConfig &quot;cluster&quot; does not exist
+INFO[0044]   Deleting Deployment &quot;olm/olm-operator&quot;
+INFO[0044]     Deployment &quot;olm/olm-operator&quot; does not exist
+INFO[0044]   Deleting Deployment &quot;olm/catalog-operator&quot;
+INFO[0044]     Deployment &quot;olm/catalog-operator&quot; does not exist
+INFO[0044]   Deleting ClusterRole &quot;aggregate-olm-edit&quot;
+INFO[0044]   Deleting ClusterRole &quot;aggregate-olm-view&quot;
+INFO[0044]   Deleting OperatorGroup &quot;operators/global-operators&quot;
+INFO[0044]     OperatorGroup &quot;operators/global-operators&quot; does not exist
+INFO[0044]   Deleting OperatorGroup &quot;olm/olm-operators&quot;
+INFO[0044]     OperatorGroup &quot;olm/olm-operators&quot; does not exist
+INFO[0044]   Deleting ClusterServiceVersion &quot;olm/packageserver&quot;
+INFO[0044]     ClusterServiceVersion &quot;olm/packageserver&quot; does not exist
+INFO[0044]   Deleting CatalogSource &quot;olm/operatorhubio-catalog&quot;
+INFO[0044]     CatalogSource &quot;olm/operatorhubio-catalog&quot; does not exist
+INFO[0044] Successfully uninstalled OLM version &quot;v0.21.1&quot;
+</code></pre></div>
+</details>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
