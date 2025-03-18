@@ -1,7 +1,7 @@
 # 4. Implement the controller
 ## 4.1. Fetch Memcached instance.
 
-1. Write the following lines in `Reconcile` function in [controllers/memcached_controller.go]() and import the necessary package.
+1. Write the following lines in `Reconcile` function in [internal/controller/memcached_controller.go]() and import the necessary package.
 
     ```go
     import (
@@ -82,7 +82,11 @@
     err = r.Get(ctx, types.NamespacedName{Name: memcached.Name, Namespace: memcached.Namespace}, found)
     if err != nil && errors.IsNotFound(err) {
             // Define a new deployment
-            dep := r.deploymentForMemcached(memcached)
+            dep, err := r.deploymentForMemcached(memcached)
+            if err != nil {
+                log.Error(err, "2. Check if the deployment already exists, if not create a new one. Failed to create new Deployment", "memcached.Namespace", memcached.Namespace, "memcached.Name", memcached.Name)
+                return ctrl.Result{}, err
+            }
             log.Info("2. Check if the deployment already exists, if not create a new one. Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
             err = r.Create(ctx, dep)
             if err != nil {
@@ -107,7 +111,7 @@
 
     ```go
     // deploymentForMemcached returns a memcached Deployment object
-    func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached) *appsv1.Deployment {
+    func (r *MemcachedReconciler) deploymentForMemcached(m *cachev1alpha1.Memcached) (*appsv1.Deployment, error) {
         ls := labelsForMemcached(m.Name)
         replicas := m.Spec.Size
 
@@ -140,7 +144,10 @@
                 },
         }
         // Set Memcached instance as the owner and controller
-        ctrl.SetControllerReference(m, dep, r.Scheme)
+        err := ctrl.SetControllerReference(m, dep, r.Scheme)
+        if err != nil {
+            return nil, err
+        }
         return dep
     }
     ```

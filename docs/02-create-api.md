@@ -12,7 +12,7 @@
     Writing kustomize manifests for you to edit...
     Writing scaffold for you to edit...
     api/v1alpha1/memcached_types.go
-    controllers/memcached_controller.go
+    internal/controller/memcached_controller.go
     Update dependencies:
     $ go mod tidy
     Running make:
