@@ -21,9 +21,10 @@ import (
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"testing"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"testing"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
